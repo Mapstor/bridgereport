@@ -10,16 +10,16 @@ import type { Metadata } from 'next';
 import type { ConditionCategory } from '@/types';
 
 export const metadata: Metadata = {
-  title: 'Covered Bridges in America — 300+ Historic Wooden Bridges by State | BridgeReport.org',
+  title: 'Covered Bridges in America — 400+ Historic Wooden Bridges by State | BridgeReport.org',
   description:
-    'Explore 300+ covered bridges in America from the National Bridge Inventory. Find covered bridges by state, see condition ratings, and discover bridges dating to the 1820s.',
+    'Explore 400+ covered bridges in America from the National Bridge Inventory. Find covered bridges by state, see condition ratings, and discover bridges dating to the 1820s.',
   alternates: {
     canonical: 'https://www.bridgereport.org/covered-bridges',
   },
   openGraph: {
-    title: 'Covered Bridges in America — 300+ Historic Wooden Bridges',
+    title: 'Covered Bridges in America — 400+ Historic Wooden Bridges',
     description:
-      'Explore 300+ covered bridges from the National Bridge Inventory. Find by state with condition ratings.',
+      'Explore 400+ covered bridges from the National Bridge Inventory. Find by state with condition ratings.',
     type: 'website',
     url: 'https://www.bridgereport.org/covered-bridges',
     images: [
@@ -33,8 +33,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Covered Bridges in America — 300+ Historic Bridges',
-    description: 'Explore 300+ covered bridges from the NBI. Find by state with condition ratings.',
+    title: 'Covered Bridges in America — 400+ Historic Bridges',
+    description: 'Explore 400+ covered bridges from the NBI. Find by state with condition ratings.',
     images: ['/og-image.png'],
   },
 };
@@ -345,11 +345,11 @@ export default function CoveredBridgesPage() {
               <p>
                 <strong>How we identify covered bridges:</strong> We classify a bridge as
                 &quot;covered&quot; if it uses wood/timber material (NBI code 7) and has a
-                truss design (deck truss or through truss, NBI codes 09-10). This methodology
-                captures the traditional covered bridge design while excluding modern timber
-                structures with different configurations. Some covered bridges may be miscoded
-                in the National Bridge Inventory or may have been rebuilt with steel trusses
-                while retaining their historic appearance.
+                truss or arch design (NBI codes 09-12: deck truss, through truss, deck arch,
+                or through arch). This methodology captures the traditional covered bridge
+                designs while excluding modern timber structures with different configurations.
+                Some covered bridges may be miscoded in the National Bridge Inventory or may
+                have been rebuilt with steel trusses while retaining their historic appearance.
               </p>
             </div>
           </div>
