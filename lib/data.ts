@@ -304,6 +304,45 @@ export function getBridgeRanking(
   return data || [];
 }
 
+/** Get paginated bridge ranking data (for server-side initial load) */
+export function getBridgeRankingPaginated(
+  type: 'longest_bridges' | 'oldest_bridges' | 'most_trafficked' | 'worst_condition' | 'longest_span' | 'historic_bridges',
+  limit: number = 100
+): { bridges: RankingBridge[]; total: number } {
+  const data = readJson<RankingBridge[]>(dataPath('rankings', `${type}.json`));
+  if (!data) return { bridges: [], total: 0 };
+  return {
+    bridges: data.slice(0, limit),
+    total: data.length,
+  };
+}
+
+/** Get worst condition stats without loading full dataset */
+export function getWorstConditionStats(): {
+  total: number;
+  rating0: number;
+  rating1: number;
+  rating2: number;
+  rating3: number;
+} {
+  // Try to read from a pre-computed stats file first
+  const statsPath = dataPath('rankings', 'worst_condition_stats.json');
+  const stats = readJson<{ total: number; rating0: number; rating1: number; rating2: number; rating3: number }>(statsPath);
+  if (stats) return stats;
+
+  // Fall back to computing from full data (only happens once if stats file doesn't exist)
+  const data = readJson<RankingBridge[]>(dataPath('rankings', 'worst_condition.json'));
+  if (!data) return { total: 0, rating0: 0, rating1: 0, rating2: 0, rating3: 0 };
+
+  return {
+    total: data.length,
+    rating0: data.filter(b => b.lowestRating === 0).length,
+    rating1: data.filter(b => b.lowestRating === 1).length,
+    rating2: data.filter(b => b.lowestRating === 2).length,
+    rating3: data.filter(b => b.lowestRating === 3).length,
+  };
+}
+
 // =============================================================================
 // METADATA & CODE LOOKUPS
 // =============================================================================

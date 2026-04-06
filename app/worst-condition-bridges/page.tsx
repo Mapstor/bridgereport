@@ -1,21 +1,10 @@
-import dynamicImport from 'next/dynamic';
 import Link from 'next/link';
-import { getBridgeRanking, formatNumber } from '@/lib/data';
+import { getWorstConditionStats, getBridgeRankingPaginated, formatNumber } from '@/lib/data';
 import Breadcrumbs, { BreadcrumbJsonLd } from '@/components/Breadcrumbs';
 import WorstConditionMapWrapper from '@/components/WorstConditionMapWrapper';
 import DataSourceFooter from '@/components/DataSourceFooter';
+import PaginatedRankingTable from '@/components/PaginatedRankingTable';
 import type { Metadata } from 'next';
-
-const RankingTable = dynamicImport(() => import('@/components/RankingTable'), {
-  loading: () => (
-    <div className="animate-pulse space-y-2">
-      <div className="h-10 bg-slate-100 rounded" />
-      {[...Array(10)].map((_, i) => (
-        <div key={i} className="h-14 bg-slate-50 rounded" />
-      ))}
-    </div>
-  ),
-});
 
 export const metadata: Metadata = {
   title: 'Worst Condition Bridges in America — Ratings 0-3 | BridgeReport.org',
@@ -66,23 +55,24 @@ function ListJsonLd({ count }: { count: number }) {
 }
 
 export default function WorstConditionBridgesPage() {
-  const bridges = getBridgeRanking('worst_condition');
+  // Load pre-computed stats (no need to load all 9,800+ bridges)
+  const stats = getWorstConditionStats();
+
+  // Load limited bridges for the map (first 500)
+  const { bridges: mapBridges } = getBridgeRankingPaginated('worst_condition', 500);
 
   const breadcrumbItems = [
     { label: 'Home', href: '/' },
     { label: 'Worst Condition Bridges' },
   ];
 
-  // Count by rating
-  const rating0 = bridges.filter(b => b.lowestRating === 0).length;
-  const rating1 = bridges.filter(b => b.lowestRating === 1).length;
-  const rating2 = bridges.filter(b => b.lowestRating === 2).length;
-  const rating3 = bridges.filter(b => b.lowestRating === 3).length;
+  // Use pre-computed stats
+  const { total, rating0, rating1, rating2, rating3 } = stats;
 
   return (
     <>
       <BreadcrumbJsonLd items={breadcrumbItems} />
-      <ListJsonLd count={bridges.length} />
+      <ListJsonLd count={total} />
 
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">
@@ -92,7 +82,7 @@ export default function WorstConditionBridgesPage() {
           <h1 className="text-4xl font-bold mb-4">Worst Condition Bridges in America</h1>
 
           <p className="text-xl text-slate-300 mb-8 max-w-3xl">
-            All {formatNumber(bridges.length)} highway bridges rated 0-3 on the federal condition scale.
+            All {formatNumber(total)} highway bridges rated 0-3 on the federal condition scale.
             These bridges have the most critical structural needs and are prioritized for repair or closure.
           </p>
 
@@ -167,7 +157,7 @@ export default function WorstConditionBridgesPage() {
             </p>
           </div>
           <div className="rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-            <WorstConditionMapWrapper bridges={bridges} height={500} />
+            <WorstConditionMapWrapper bridges={mapBridges} height={500} />
           </div>
         </section>
 
@@ -216,18 +206,17 @@ export default function WorstConditionBridgesPage() {
         <section className="bg-white rounded-xl border border-slate-200 p-6 mb-12">
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-slate-900 mb-2">
-              All {formatNumber(bridges.length)} Bridges Rated 0-3
+              All {formatNumber(total)} Bridges Rated 0-3
             </h2>
             <p className="text-slate-600">
               Search by road name, crossing, location, or state. Sorted by lowest rating first.
             </p>
           </div>
-          <RankingTable
-            bridges={bridges}
+          <PaginatedRankingTable
+            rankingType="worst_condition"
             valueColumn="lowestRating"
             valueLabel="Rating"
             formatType="rating"
-            sortAscending={true}
             showDescription={true}
             descriptionType="condition"
           />
