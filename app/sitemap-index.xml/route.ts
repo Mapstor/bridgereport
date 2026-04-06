@@ -6,7 +6,7 @@
 import { NextResponse } from 'next/server';
 import { getAllStateAbbrs } from '@/lib/data';
 
-const BASE_URL = 'https://bridgereport.org';
+const BASE_URL = 'https://www.bridgereport.org';
 
 export async function GET() {
   const states = getAllStateAbbrs();

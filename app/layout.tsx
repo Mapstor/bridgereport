@@ -5,24 +5,27 @@ import Footer from '@/components/Footer';
 import Analytics from '@/components/Analytics';
 import { AdProvider, StickyFooterAd } from '@/components/ads';
 
+// Canonical domain is www.bridgereport.org (not non-www)
+const CANONICAL_DOMAIN = 'https://www.bridgereport.org';
+
 export const metadata: Metadata = {
-  metadataBase: new URL('https://bridgereport.org'),
+  metadataBase: new URL(CANONICAL_DOMAIN),
   title: {
     default: 'BridgeReport.org — America\'s 623,218 Highway Bridges',
     template: '%s | BridgeReport.org',
   },
   description: 'Explore bridge condition data for every highway bridge in America. Find bridge ratings, deficiency status, and infrastructure reports by state, county, or location.',
   keywords: ['bridge conditions', 'highway bridges', 'bridge inspection', 'NBI', 'infrastructure', 'structurally deficient bridges', 'National Bridge Inventory', 'FHWA', 'bridge safety', 'bridge data'],
-  authors: [{ name: 'BridgeReport.org', url: 'https://bridgereport.org' }],
+  authors: [{ name: 'BridgeReport.org', url: CANONICAL_DOMAIN }],
   creator: 'BridgeReport.org',
   publisher: 'BridgeReport.org',
   alternates: {
-    canonical: 'https://bridgereport.org',
+    canonical: '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    url: 'https://bridgereport.org',
+    url: CANONICAL_DOMAIN,
     siteName: 'BridgeReport.org',
     title: 'BridgeReport.org — America\'s 623,218 Highway Bridges',
     description: 'Explore bridge condition data for every highway bridge in America. Find bridge ratings, deficiency status, and infrastructure reports by state, county, or location.',
@@ -66,8 +69,8 @@ function OrganizationJsonLd() {
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: 'BridgeReport.org',
-    url: 'https://bridgereport.org',
-    logo: 'https://bridgereport.org/icon.png',
+    url: CANONICAL_DOMAIN,
+    logo: `${CANONICAL_DOMAIN}/icon.png`,
     sameAs: [],
     description: 'Explore bridge condition data for every highway bridge in America. Find bridge ratings, deficiency status, and infrastructure reports by state, county, or location.',
   };
@@ -86,14 +89,14 @@ function WebSiteJsonLd() {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: 'BridgeReport.org',
-    url: 'https://bridgereport.org',
+    url: CANONICAL_DOMAIN,
     description: 'Explore bridge condition data for every highway bridge in America.',
     publisher: {
       '@type': 'Organization',
       name: 'BridgeReport.org',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://bridgereport.org/icon.png',
+        url: `${CANONICAL_DOMAIN}/icon.png`,
       },
     },
   };

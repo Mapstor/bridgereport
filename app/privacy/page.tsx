@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   title: 'Privacy Policy - BridgeReport.org',
   description: 'Privacy Policy for BridgeReport.org. Learn how we collect, use, and protect your personal information when you visit our website.',
   alternates: {
-    canonical: 'https://bridgereport.org/privacy',
+    canonical: 'https://www.bridgereport.org/privacy',
   },
   openGraph: {
     title: 'Privacy Policy - BridgeReport.org',
     description: 'Privacy Policy for BridgeReport.org. Learn how we collect, use, and protect your personal information when you visit our website.',
-    url: 'https://bridgereport.org/privacy',
+    url: 'https://www.bridgereport.org/privacy',
     type: 'website',
     images: [
       {
@@ -38,13 +38,13 @@ function PrivacyJsonLd() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://bridgereport.org',
+        item: 'https://www.bridgereport.org',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Privacy Policy',
-        item: 'https://bridgereport.org/privacy',
+        item: 'https://www.bridgereport.org/privacy',
       },
     ],
   };
@@ -52,16 +52,16 @@ function PrivacyJsonLd() {
   const webPageSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    '@id': 'https://bridgereport.org/privacy',
+    '@id': 'https://www.bridgereport.org/privacy',
     name: 'Privacy Policy - BridgeReport.org',
     description: 'Privacy Policy for BridgeReport.org. Learn how we collect, use, and protect your personal information when you visit our website.',
-    url: 'https://bridgereport.org/privacy',
+    url: 'https://www.bridgereport.org/privacy',
     dateModified: '2025-04-06',
     inLanguage: 'en-US',
     isPartOf: {
       '@type': 'WebSite',
       name: 'BridgeReport.org',
-      url: 'https://bridgereport.org',
+      url: 'https://www.bridgereport.org',
     },
     about: {
       '@type': 'Thing',

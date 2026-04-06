@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { getAllCoveredBridges, formatNumber } from '@/lib/data';
 import ConditionBadge from '@/components/ConditionBadge';
-import Breadcrumbs, { BreadcrumbJsonLd } from '@/components/Breadcrumbs';
+import Breadcrumbs from '@/components/Breadcrumbs';
+import RankingJsonLd from '@/components/RankingJsonLd';
 import CoveredBridgesMapWrapper from '@/components/CoveredBridgesMapWrapper';
 import CoveredBridgesTimeline from '@/components/CoveredBridgesTimeline';
 import DataSourceFooter from '@/components/DataSourceFooter';
@@ -9,18 +10,18 @@ import type { Metadata } from 'next';
 import type { ConditionCategory } from '@/types';
 
 export const metadata: Metadata = {
-  title: 'Covered Bridges in America — Historic Wooden Bridges by State | BridgeReport.org',
+  title: 'Covered Bridges in America — 300+ Historic Wooden Bridges by State | BridgeReport.org',
   description:
-    'Explore America\'s historic covered bridges. Find covered bridges by state, see their condition ratings, and learn about these iconic wooden structures.',
+    'Explore 300+ covered bridges in America from the National Bridge Inventory. Find covered bridges by state, see condition ratings, and discover bridges dating to the 1820s.',
   alternates: {
-    canonical: 'https://bridgereport.org/covered-bridges',
+    canonical: 'https://www.bridgereport.org/covered-bridges',
   },
   openGraph: {
-    title: 'Covered Bridges in America — Historic Wooden Bridges',
+    title: 'Covered Bridges in America — 300+ Historic Wooden Bridges',
     description:
-      'Explore America\'s historic covered bridges. Find covered bridges by state with condition ratings.',
+      'Explore 300+ covered bridges from the National Bridge Inventory. Find by state with condition ratings.',
     type: 'website',
-    url: 'https://bridgereport.org/covered-bridges',
+    url: 'https://www.bridgereport.org/covered-bridges',
     images: [
       {
         url: '/og-image.png',
@@ -32,32 +33,14 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Covered Bridges in America',
-    description: 'Explore America\'s historic covered bridges with condition ratings.',
+    title: 'Covered Bridges in America — 300+ Historic Bridges',
+    description: 'Explore 300+ covered bridges from the NBI. Find by state with condition ratings.',
     images: ['/og-image.png'],
   },
 };
 
 // Use dynamic rendering to avoid memory issues during build
 export const dynamic = 'force-dynamic';
-
-// JSON-LD structured data
-function CoveredBridgesJsonLd({ total, stateCount }: { total: number; stateCount: number }) {
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Covered Bridges in America',
-    description: `A comprehensive list of ${total} covered bridges across ${stateCount} U.S. states`,
-    numberOfItems: total,
-  };
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-    />
-  );
-}
 
 // Use fixed year to avoid hydration mismatch
 const CURRENT_YEAR = 2026;
@@ -155,8 +138,16 @@ export default function CoveredBridgesPage() {
 
   return (
     <>
-      <BreadcrumbJsonLd items={breadcrumbs} />
-      <CoveredBridgesJsonLd total={data.total} stateCount={data.byState.length} />
+      <RankingJsonLd
+        headline="Covered Bridges in America"
+        description="America's covered bridges still standing across multiple states. These historic wooden truss structures, some dating back to the early 1800s, represent an important part of American engineering and architectural heritage."
+        canonicalUrl="https://www.bridgereport.org/covered-bridges"
+        items={data.bridges}
+        listName="Covered Bridges in America"
+        listDescription={`A comprehensive list of ${data.total} covered bridges across ${data.byState.length} U.S. states`}
+        itemListOrder="Ascending"
+        breadcrumbItems={breadcrumbs}
+      />
 
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">
@@ -341,8 +332,9 @@ export default function CoveredBridgesPage() {
                 among the most popular configurations.
               </p>
               <p>
-                Today, fewer than 1,000 covered bridges remain nationwide, primarily concentrated in
-                Pennsylvania, Ohio, Indiana, Oregon, and Vermont. Many are listed on the National
+                Today, approximately 800-900 covered bridges remain nationwide, with over 300 tracked
+                in the National Bridge Inventory as public highway bridges. They are primarily concentrated
+                in Pennsylvania, Ohio, Indiana, Oregon, and Vermont. Many are listed on the National
                 Register of Historic Places and maintained as local landmarks and tourist attractions.
                 Covered bridge festivals draw thousands of visitors annually to regions like
                 Parke County, Indiana (the &quot;Covered Bridge Capital of the World&quot;) and

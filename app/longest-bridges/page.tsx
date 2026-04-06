@@ -1,7 +1,8 @@
 import dynamicImport from 'next/dynamic';
 import Link from 'next/link';
 import { getBridgeRanking, formatNumber } from '@/lib/data';
-import Breadcrumbs, { BreadcrumbJsonLd } from '@/components/Breadcrumbs';
+import Breadcrumbs from '@/components/Breadcrumbs';
+import RankingJsonLd from '@/components/RankingJsonLd';
 import LongestBridgesMapWrapper from '@/components/LongestBridgesMapWrapper';
 import BridgeLengthComparison from '@/components/BridgeLengthComparison';
 import DataSourceFooter from '@/components/DataSourceFooter';
@@ -23,14 +24,14 @@ export const metadata: Metadata = {
   description:
     'Explore the 500 longest highway bridges in the United States, ranked by total length. Includes Lake Pontchartrain Causeway, Manchac Swamp Bridge, and more.',
   alternates: {
-    canonical: 'https://bridgereport.org/longest-bridges',
+    canonical: 'https://www.bridgereport.org/longest-bridges',
   },
   openGraph: {
     title: 'Longest Bridges in America',
     description:
       'The 500 longest highway bridges in the United States, ranked by total length in feet.',
     type: 'website',
-    url: 'https://bridgereport.org/longest-bridges',
+    url: 'https://www.bridgereport.org/longest-bridges',
     images: [
       {
         url: '/og-image.png',
@@ -47,24 +48,6 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
 };
-
-function ListJsonLd({ count }: { count: number }) {
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Longest Bridges in America',
-    description: `Top ${count} longest highway bridges in the United States by total length`,
-    numberOfItems: count,
-    itemListOrder: 'Descending',
-  };
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-    />
-  );
-}
 
 export default function LongestBridgesPage() {
   const bridges = getBridgeRanking('longest_bridges');
@@ -86,8 +69,16 @@ export default function LongestBridgesPage() {
 
   return (
     <>
-      <BreadcrumbJsonLd items={breadcrumbItems} />
-      <ListJsonLd count={bridges.length} />
+      <RankingJsonLd
+        headline="Longest Bridges in America"
+        description="The top longest highway bridges in the United States. These massive structures span lakes, rivers, bays, and wetlands across the country."
+        canonicalUrl="https://www.bridgereport.org/longest-bridges"
+        items={bridges}
+        listName="Longest Bridges in America"
+        listDescription={`Top ${bridges.length} longest highway bridges in the United States by total length`}
+        itemListOrder="Descending"
+        breadcrumbItems={breadcrumbItems}
+      />
 
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">

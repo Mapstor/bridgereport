@@ -1,7 +1,8 @@
 import dynamicImport from 'next/dynamic';
 import Link from 'next/link';
 import { getBridgeRanking, formatNumber } from '@/lib/data';
-import Breadcrumbs, { BreadcrumbJsonLd } from '@/components/Breadcrumbs';
+import Breadcrumbs from '@/components/Breadcrumbs';
+import RankingJsonLd from '@/components/RankingJsonLd';
 import OldestBridgesMapWrapper from '@/components/OldestBridgesMapWrapper';
 import DataSourceFooter from '@/components/DataSourceFooter';
 import type { Metadata } from 'next';
@@ -22,14 +23,14 @@ export const metadata: Metadata = {
   description:
     'Discover the oldest highway bridges still in use in the United States. Many date back to the 1800s and feature historic masonry and iron construction.',
   alternates: {
-    canonical: 'https://bridgereport.org/oldest-bridges',
+    canonical: 'https://www.bridgereport.org/oldest-bridges',
   },
   openGraph: {
     title: 'Oldest Bridges in America',
     description:
       'The oldest highway bridges still standing in the United States, ranked by year built.',
     type: 'website',
-    url: 'https://bridgereport.org/oldest-bridges',
+    url: 'https://www.bridgereport.org/oldest-bridges',
     images: [
       {
         url: '/og-image.png',
@@ -47,24 +48,6 @@ export const metadata: Metadata = {
   },
 };
 
-function ListJsonLd({ count }: { count: number }) {
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Oldest Bridges in America',
-    description: `Top ${count} oldest highway bridges in the United States by year built`,
-    numberOfItems: count,
-    itemListOrder: 'Ascending',
-  };
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-    />
-  );
-}
-
 export default function OldestBridgesPage() {
   const bridges = getBridgeRanking('oldest_bridges');
 
@@ -79,8 +62,16 @@ export default function OldestBridgesPage() {
 
   return (
     <>
-      <BreadcrumbJsonLd items={breadcrumbItems} />
-      <ListJsonLd count={bridges.length} />
+      <RankingJsonLd
+        headline="Oldest Bridges in America"
+        description="The oldest highway bridges still in service in the United States. Many of these historic structures date back to the 1800s and showcase early American engineering."
+        canonicalUrl="https://www.bridgereport.org/oldest-bridges"
+        items={bridges}
+        listName="Oldest Bridges in America"
+        listDescription={`Top ${bridges.length} oldest highway bridges in the United States by year built`}
+        itemListOrder="Ascending"
+        breadcrumbItems={breadcrumbItems}
+      />
 
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">

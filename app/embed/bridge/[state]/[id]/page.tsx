@@ -50,7 +50,7 @@ export default async function BridgeWidget({
   const theme = THEMES[themeParam === 'dark' ? 'dark' : 'light'];
   const isDark = themeParam === 'dark';
   const isCompact = compact === 'true';
-  const siteUrl = 'https://bridgereport.org';
+  const siteUrl = 'https://www.bridgereport.org';
   const bridgeUrl = `${siteUrl}/bridge/${state.toLowerCase()}/${id}`;
 
   const conditionColors = bridge.conditionCategory

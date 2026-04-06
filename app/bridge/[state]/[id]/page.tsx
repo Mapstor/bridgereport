@@ -9,7 +9,7 @@ import {
 import { generateBridgeTrend } from '@/lib/trends';
 import ConditionBadge from '@/components/ConditionBadge';
 import RatingIndicator from '@/components/RatingIndicator';
-import Breadcrumbs, { BreadcrumbJsonLd } from '@/components/Breadcrumbs';
+import Breadcrumbs from '@/components/Breadcrumbs';
 import DataSourceFooter from '@/components/DataSourceFooter';
 import { BridgeTrendSection } from '@/components/TrendSection';
 import SingleBridgeMap from '@/components/SingleBridgeMap';
@@ -41,13 +41,13 @@ export async function generateMetadata({
     title: `${title} — Bridge Condition | BridgeReport.org`,
     description,
     alternates: {
-      canonical: `https://bridgereport.org/bridge/${state.toLowerCase()}/${id}`,
+      canonical: `https://www.bridgereport.org/bridge/${state.toLowerCase()}/${id}`,
     },
     openGraph: {
       title,
       description,
       type: 'article',
-      url: `https://bridgereport.org/bridge/${state.toLowerCase()}/${id}`,
+      url: `https://www.bridgereport.org/bridge/${state.toLowerCase()}/${id}`,
       images: [
         {
           url: '/og-image.png',
@@ -66,118 +66,131 @@ export async function generateMetadata({
   };
 }
 
-// JSON-LD structured data for Bridge (CivicStructure)
-function BridgeJsonLd({ bridge, countyName }: { bridge: Bridge; countyName: string | null }) {
-  const bridgeName = `${bridge.facilityCarried || 'Bridge'} over ${bridge.featuresIntersected || 'Unknown'}`;
-  const currentYear = new Date().getFullYear();
-  const bridgeAge = bridge.yearBuilt ? currentYear - bridge.yearBuilt : null;
-
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'Bridge',
-    '@id': `https://bridgereport.org/bridge/${bridge.stateFips?.toLowerCase() || 'us'}/${bridge.id}`,
-    name: bridgeName,
-    description: `${bridgeName} in ${countyName ? `${countyName}, ` : ''}${bridge.stateName}. ${bridge.materialName || ''} ${bridge.designTypeName || ''} structure${bridge.yearBuilt ? ` built in ${bridge.yearBuilt}` : ''}. Current condition: ${bridge.conditionCategory || 'unknown'}.${bridge.adt ? ` Carries ${formatNumber(bridge.adt)} vehicles daily.` : ''}`,
-    url: `https://bridgereport.org/bridge/${bridge.stateFips?.toLowerCase() || 'us'}/${bridge.id}`,
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: bridge.location || countyName || undefined,
-      addressRegion: bridge.stateName,
-      addressCountry: 'US',
-    },
-    geo: bridge.lat && bridge.lon ? {
-      '@type': 'GeoCoordinates',
-      latitude: bridge.lat,
-      longitude: bridge.lon,
-    } : undefined,
-    ...(bridge.yearBuilt && { foundingDate: String(bridge.yearBuilt) }),
-    ...(bridgeAge && {
-      additionalProperty: [
-        {
-          '@type': 'PropertyValue',
-          name: 'Age',
-          value: `${bridgeAge} years`,
-        },
-        {
-          '@type': 'PropertyValue',
-          name: 'Condition Rating',
-          value: bridge.conditionCategory || 'Unknown',
-        },
-        ...(bridge.lowestRating !== null ? [{
-          '@type': 'PropertyValue',
-          name: 'NBI Rating',
-          value: bridge.lowestRating,
-          minValue: 0,
-          maxValue: 9,
-        }] : []),
-        ...(bridge.adt ? [{
-          '@type': 'PropertyValue',
-          name: 'Average Daily Traffic',
-          value: bridge.adt,
-          unitText: 'vehicles per day',
-        }] : []),
-        ...(bridge.lengthFt ? [{
-          '@type': 'PropertyValue',
-          name: 'Total Length',
-          value: Math.round(bridge.lengthFt),
-          unitCode: 'FOT',
-          unitText: 'feet',
-        }] : []),
-      ],
-    }),
-    isAccessibleForFree: true,
-    publicAccess: true,
-  };
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-    />
-  );
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
 }
 
-// FAQ JSON-LD for common bridge questions
-function BridgeFAQJsonLd({ bridge, countyName }: { bridge: Bridge; countyName: string | null }) {
-  const bridgeName = bridge.facilityCarried || 'This bridge';
+// Combined JSON-LD with @graph for Bridge + FAQ + BreadcrumbList
+function BridgePageJsonLd({ bridge, countyName, breadcrumbItems }: { bridge: Bridge; countyName: string | null; breadcrumbItems: BreadcrumbItem[] }) {
+  const bridgeName = `${bridge.facilityCarried || 'Bridge'} over ${bridge.featuresIntersected || 'Unknown'}`;
+  const bridgeNameSimple = bridge.facilityCarried || 'This bridge';
   const currentYear = new Date().getFullYear();
   const bridgeAge = bridge.yearBuilt ? currentYear - bridge.yearBuilt : null;
 
-  const faqData = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: `What is the condition of ${bridgeName}?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `${bridgeName} is currently rated in ${bridge.conditionCategory || 'unknown'} condition${bridge.lowestRating !== null ? ` with a lowest component rating of ${bridge.lowestRating} on the 0-9 federal scale` : ''}. ${bridge.structurallyDeficient ? 'The bridge is classified as structurally deficient, meaning one or more components have significant deterioration, though it remains safe for travel within posted limits.' : 'The bridge meets current federal safety standards.'}`,
-        },
+  // Build FAQ questions array
+  const faqQuestions = [
+    {
+      '@type': 'Question',
+      name: `What is the condition of ${bridgeNameSimple}?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `${bridgeNameSimple} is currently rated in ${bridge.conditionCategory || 'unknown'} condition${bridge.lowestRating !== null ? ` with a lowest component rating of ${bridge.lowestRating} on the 0-9 federal scale` : ''}. ${bridge.structurallyDeficient ? 'The bridge is classified as structurally deficient, meaning one or more components have significant deterioration, though it remains safe for travel within posted limits.' : 'The bridge meets current federal safety standards.'}`,
       },
-      ...(bridgeAge ? [{
-        '@type': 'Question',
-        name: `How old is ${bridgeName}?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `${bridgeName} was built in ${bridge.yearBuilt}, making it ${bridgeAge} years old.${bridge.yearReconstructed ? ` It was reconstructed in ${bridge.yearReconstructed}.` : ''}`,
-        },
-      }] : []),
-      ...(bridge.adt ? [{
-        '@type': 'Question',
-        name: `How much traffic does ${bridgeName} carry?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `${bridgeName} carries approximately ${formatNumber(bridge.adt)} vehicles per day (Average Daily Traffic)${bridge.truckPct ? `, with ${bridge.truckPct}% being commercial trucks` : ''}.`,
-        },
-      }] : []),
+    },
+    ...(bridgeAge ? [{
+      '@type': 'Question',
+      name: `How old is ${bridgeNameSimple}?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `${bridgeNameSimple} was built in ${bridge.yearBuilt}, making it ${bridgeAge} years old.${bridge.yearReconstructed ? ` It was reconstructed in ${bridge.yearReconstructed}.` : ''}`,
+      },
+    }] : []),
+    ...(bridge.adt ? [{
+      '@type': 'Question',
+      name: `How much traffic does ${bridgeNameSimple} carry?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `${bridgeNameSimple} carries approximately ${formatNumber(bridge.adt)} vehicles per day (Average Daily Traffic)${bridge.truckPct ? `, with ${bridge.truckPct}% being commercial trucks` : ''}.`,
+      },
+    }] : []),
+    {
+      '@type': 'Question',
+      name: `Where is ${bridgeNameSimple} located?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `${bridgeNameSimple} is located in ${bridge.location ? `${bridge.location}, ` : ''}${countyName ? `${countyName}, ` : ''}${bridge.stateName}${bridge.lat && bridge.lon ? ` at coordinates ${bridge.lat.toFixed(4)}, ${bridge.lon.toFixed(4)}` : ''}.`,
+      },
+    },
+  ];
+
+  const graphData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      // Bridge schema
       {
-        '@type': 'Question',
-        name: `Where is ${bridgeName} located?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `${bridgeName} is located in ${bridge.location ? `${bridge.location}, ` : ''}${countyName ? `${countyName}, ` : ''}${bridge.stateName}${bridge.lat && bridge.lon ? ` at coordinates ${bridge.lat.toFixed(4)}, ${bridge.lon.toFixed(4)}` : ''}.`,
+        '@type': 'Bridge',
+        '@id': `https://www.bridgereport.org/bridge/${bridge.stateFips?.toLowerCase() || 'us'}/${bridge.id}`,
+        name: bridgeName,
+        description: `${bridgeName} in ${countyName ? `${countyName}, ` : ''}${bridge.stateName}. ${bridge.materialName || ''} ${bridge.designTypeName || ''} structure${bridge.yearBuilt ? ` built in ${bridge.yearBuilt}` : ''}. Current condition: ${bridge.conditionCategory || 'unknown'}.${bridge.adt ? ` Carries ${formatNumber(bridge.adt)} vehicles daily.` : ''}`,
+        url: `https://www.bridgereport.org/bridge/${bridge.stateFips?.toLowerCase() || 'us'}/${bridge.id}`,
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: bridge.location || countyName || undefined,
+          addressRegion: bridge.stateName,
+          addressCountry: 'US',
         },
+        ...(bridge.lat && bridge.lon ? {
+          geo: {
+            '@type': 'GeoCoordinates',
+            latitude: bridge.lat,
+            longitude: bridge.lon,
+          },
+        } : {}),
+        ...(bridge.yearBuilt && { foundingDate: String(bridge.yearBuilt) }),
+        ...(bridgeAge && {
+          additionalProperty: [
+            {
+              '@type': 'PropertyValue',
+              name: 'Age',
+              value: `${bridgeAge} years`,
+            },
+            {
+              '@type': 'PropertyValue',
+              name: 'Condition Rating',
+              value: bridge.conditionCategory || 'Unknown',
+            },
+            ...(bridge.lowestRating !== null ? [{
+              '@type': 'PropertyValue',
+              name: 'NBI Rating',
+              value: bridge.lowestRating,
+              minValue: 0,
+              maxValue: 9,
+            }] : []),
+            ...(bridge.adt ? [{
+              '@type': 'PropertyValue',
+              name: 'Average Daily Traffic',
+              value: bridge.adt,
+              unitText: 'vehicles per day',
+            }] : []),
+            ...(bridge.lengthFt ? [{
+              '@type': 'PropertyValue',
+              name: 'Total Length',
+              value: Math.round(bridge.lengthFt),
+              unitCode: 'FOT',
+              unitText: 'feet',
+            }] : []),
+          ],
+        }),
+        isAccessibleForFree: true,
+        publicAccess: true,
+      },
+      // FAQ schema
+      {
+        '@type': 'FAQPage',
+        mainEntity: faqQuestions,
+      },
+      // BreadcrumbList schema
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbItems
+          .filter((item) => item.href)
+          .map((item, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: item.label,
+            item: `https://www.bridgereport.org${item.href}`,
+          })),
       },
     ],
   };
@@ -185,7 +198,7 @@ function BridgeFAQJsonLd({ bridge, countyName }: { bridge: Bridge; countyName: s
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData) }}
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(graphData) }}
     />
   );
 }
@@ -257,9 +270,7 @@ export default async function BridgePage({
 
   return (
     <>
-      <BreadcrumbJsonLd items={breadcrumbItems} />
-      <BridgeJsonLd bridge={bridge} countyName={countyName} />
-      <BridgeFAQJsonLd bridge={bridge} countyName={countyName} />
+      <BridgePageJsonLd bridge={bridge} countyName={countyName} breadcrumbItems={breadcrumbItems} />
 
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">

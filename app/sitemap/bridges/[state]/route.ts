@@ -8,7 +8,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getBridgeIdsForState, getAllStateAbbrs } from '@/lib/data';
 
-const BASE_URL = 'https://bridgereport.org';
+const BASE_URL = 'https://www.bridgereport.org';
 
 export async function GET(
   request: NextRequest,

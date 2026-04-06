@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import dynamicImport from 'next/dynamic';
 import { getState, getNational, getCountyName, formatNumber, formatPct } from '@/lib/data';
-import { BreadcrumbJsonLd } from '@/components/Breadcrumbs';
 import RatingBadge from '@/components/RatingBadge';
 import ConditionBar from '@/components/ConditionBar';
 import SortableCountyTable from '@/components/SortableCountyTable';
@@ -37,13 +36,13 @@ export async function generateMetadata({
     title,
     description,
     alternates: {
-      canonical: `https://bridgereport.org/state/${abbr.toLowerCase()}`,
+      canonical: `https://www.bridgereport.org/state/${abbr.toLowerCase()}`,
     },
     openGraph: {
       title: `${state.stateName} Bridges — Condition Report`,
       description,
       type: 'website',
-      url: `https://bridgereport.org/state/${abbr.toLowerCase()}`,
+      url: `https://www.bridgereport.org/state/${abbr.toLowerCase()}`,
       images: [
         {
           url: '/og-image.png',
@@ -62,63 +61,82 @@ export async function generateMetadata({
   };
 }
 
-// JSON-LD Dataset
-function DatasetJsonLd({ state }: { state: StateSummary }) {
-  const data = {
-    '@context': 'https://schema.org',
-    '@type': 'Dataset',
-    name: `${state.stateName} Highway Bridge Inventory`,
-    description: `Complete inventory of ${formatNumber(state.total)} highway bridges in ${state.stateName}.`,
-    url: `https://bridgereport.org/state/${state.state.toLowerCase()}`,
-    license: 'https://www.usa.gov/government-works',
-    creator: { '@type': 'Organization', name: 'Federal Highway Administration', url: 'https://www.fhwa.dot.gov/' },
-    spatialCoverage: { '@type': 'Place', name: state.stateName },
-  };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
 }
 
-// JSON-LD FAQ (not visible, structured data only)
-function FAQJsonLd({ state }: { state: StateSummary }) {
+// Combined JSON-LD with @graph for Dataset + FAQ + BreadcrumbList
+function StatePageJsonLd({ state, breadcrumbItems }: { state: StateSummary; breadcrumbItems: BreadcrumbItem[] }) {
   const avgAge = new Date().getFullYear() - state.avgYearBuilt;
-  const faqData = {
+
+  const graphData = {
     '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: [
+    '@graph': [
+      // Dataset schema
       {
-        '@type': 'Question',
-        name: `How many bridges are in ${state.stateName}?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `${state.stateName} has ${formatNumber(state.total)} highway bridges across ${state.countyCount} counties. ${formatNumber(state.good)} (${formatPct(state.goodPct)}) are in good condition, ${formatNumber(state.fair)} (${formatPct(state.fairPct)}) fair, and ${formatNumber(state.poor)} (${formatPct(state.poorPct)}) poor.`,
-        },
+        '@type': 'Dataset',
+        name: `${state.stateName} Highway Bridge Inventory`,
+        description: `Complete inventory of ${formatNumber(state.total)} highway bridges in ${state.stateName}.`,
+        url: `https://www.bridgereport.org/state/${state.state.toLowerCase()}`,
+        license: 'https://www.usa.gov/government-works',
+        creator: { '@type': 'Organization', name: 'Federal Highway Administration', url: 'https://www.fhwa.dot.gov/' },
+        spatialCoverage: { '@type': 'Place', name: state.stateName },
       },
+      // FAQ schema
       {
-        '@type': 'Question',
-        name: `What percentage of ${state.stateName} bridges are in poor condition?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `${formatPct(state.poorPct)} of bridges in ${state.stateName} are rated poor (structurally deficient). That's ${formatNumber(state.poor)} bridges out of ${formatNumber(state.total)} total.`,
-        },
+        '@type': 'FAQPage',
+        mainEntity: [
+          {
+            '@type': 'Question',
+            name: `How many bridges are in ${state.stateName}?`,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: `${state.stateName} has ${formatNumber(state.total)} highway bridges across ${state.countyCount} counties. ${formatNumber(state.good)} (${formatPct(state.goodPct)}) are in good condition, ${formatNumber(state.fair)} (${formatPct(state.fairPct)}) fair, and ${formatNumber(state.poor)} (${formatPct(state.poorPct)}) poor.`,
+            },
+          },
+          {
+            '@type': 'Question',
+            name: `What percentage of ${state.stateName} bridges are in poor condition?`,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: `${formatPct(state.poorPct)} of bridges in ${state.stateName} are rated poor (structurally deficient). That's ${formatNumber(state.poor)} bridges out of ${formatNumber(state.total)} total.`,
+            },
+          },
+          {
+            '@type': 'Question',
+            name: 'How are bridge conditions rated?',
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: 'Bridges are rated 0-9 on deck, superstructure, substructure, or culvert condition. Poor = 0-4, Fair = 5-6, Good = 7-9. Inspections occur every 24 months.',
+            },
+          },
+          {
+            '@type': 'Question',
+            name: `What is the average age of bridges in ${state.stateName}?`,
+            acceptedAnswer: {
+              '@type': 'Answer',
+              text: `Average age is ${avgAge} years (built ~${state.avgYearBuilt}). Oldest: ${state.oldestYear}, newest: ${state.newestYear}.`,
+            },
+          },
+        ],
       },
+      // BreadcrumbList schema
       {
-        '@type': 'Question',
-        name: 'How are bridge conditions rated?',
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: 'Bridges are rated 0-9 on deck, superstructure, substructure, or culvert condition. Poor = 0-4, Fair = 5-6, Good = 7-9. Inspections occur every 24 months.',
-        },
-      },
-      {
-        '@type': 'Question',
-        name: `What is the average age of bridges in ${state.stateName}?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `Average age is ${avgAge} years (built ~${state.avgYearBuilt}). Oldest: ${state.oldestYear}, newest: ${state.newestYear}.`,
-        },
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbItems
+          .filter((item) => item.href)
+          .map((item, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: item.label,
+            item: `https://www.bridgereport.org${item.href}`,
+          })),
       },
     ],
   };
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData) }} />;
+
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(graphData) }} />;
 }
 
 export default async function StatePage({ params }: { params: Promise<{ abbr: string }> }) {
@@ -162,9 +180,7 @@ export default async function StatePage({ params }: { params: Promise<{ abbr: st
 
   return (
     <>
-      <DatasetJsonLd state={state} />
-      <FAQJsonLd state={state} />
-      <BreadcrumbJsonLd items={breadcrumbItems} />
+      <StatePageJsonLd state={state} breadcrumbItems={breadcrumbItems} />
 
       {/* HEADER — Compact, data-dense */}
       <header className="border-b-[3px] border-slate-900 bg-white">

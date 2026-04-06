@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   title: 'Data Methodology - BridgeReport.org',
   description: 'Detailed explanation of BridgeReport.org data sources, processing methodology, condition ratings, and how we present bridge infrastructure information.',
   alternates: {
-    canonical: 'https://bridgereport.org/methodology',
+    canonical: 'https://www.bridgereport.org/methodology',
   },
   openGraph: {
     title: 'Data Methodology - BridgeReport.org',
     description: 'Detailed explanation of BridgeReport.org data sources, processing methodology, condition ratings, and how we present bridge infrastructure information.',
-    url: 'https://bridgereport.org/methodology',
+    url: 'https://www.bridgereport.org/methodology',
     type: 'article',
     images: [
       {
@@ -38,13 +38,13 @@ function MethodologyJsonLd() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://bridgereport.org',
+        item: 'https://www.bridgereport.org',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Methodology',
-        item: 'https://bridgereport.org/methodology',
+        item: 'https://www.bridgereport.org/methodology',
       },
     ],
   };
@@ -52,26 +52,26 @@ function MethodologyJsonLd() {
   const articleSchema = {
     '@context': 'https://schema.org',
     '@type': 'TechArticle',
-    '@id': 'https://bridgereport.org/methodology',
+    '@id': 'https://www.bridgereport.org/methodology',
     headline: 'Data Methodology - BridgeReport.org',
     description: 'Detailed explanation of BridgeReport.org data sources, processing methodology, condition ratings, and how we present bridge infrastructure information.',
-    url: 'https://bridgereport.org/methodology',
+    url: 'https://www.bridgereport.org/methodology',
     author: {
       '@type': 'Organization',
       name: 'BridgeReport.org',
-      url: 'https://bridgereport.org',
+      url: 'https://www.bridgereport.org',
     },
     publisher: {
       '@type': 'Organization',
       name: 'BridgeReport.org',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://bridgereport.org/icon.png',
+        url: 'https://www.bridgereport.org/icon.png',
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': 'https://bridgereport.org/methodology',
+      '@id': 'https://www.bridgereport.org/methodology',
     },
     about: [
       {
@@ -90,7 +90,7 @@ function MethodologyJsonLd() {
     isPartOf: {
       '@type': 'WebSite',
       name: 'BridgeReport.org',
-      url: 'https://bridgereport.org',
+      url: 'https://www.bridgereport.org',
     },
   };
 
@@ -99,7 +99,7 @@ function MethodologyJsonLd() {
     '@type': 'Dataset',
     name: 'BridgeReport.org Bridge Data',
     description: 'Comprehensive bridge condition data derived from the National Bridge Inventory (NBI), covering over 623,000 highway bridges in the United States.',
-    url: 'https://bridgereport.org',
+    url: 'https://www.bridgereport.org',
     license: 'https://www.usa.gov/government-works',
     creator: {
       '@type': 'Organization',
@@ -108,7 +108,7 @@ function MethodologyJsonLd() {
     distribution: {
       '@type': 'DataDownload',
       encodingFormat: 'text/html',
-      contentUrl: 'https://bridgereport.org',
+      contentUrl: 'https://www.bridgereport.org',
     },
     temporalCoverage: '2020/2024',
     spatialCoverage: {

@@ -11,14 +11,14 @@ export const metadata: Metadata = {
   description:
     'Compare bridge conditions across all 50 states, DC, and US territories. See which states have the most structurally deficient bridges ranked by percentage in poor condition.',
   alternates: {
-    canonical: 'https://bridgereport.org/rankings',
+    canonical: 'https://www.bridgereport.org/rankings',
   },
   openGraph: {
     title: 'State Bridge Rankings — Worst to Best by Condition',
     description:
       'Compare bridge conditions across all US states. See rankings by percentage in poor condition.',
     type: 'website',
-    url: 'https://bridgereport.org/rankings',
+    url: 'https://www.bridgereport.org/rankings',
     images: [
       {
         url: '/og-image.png',
@@ -43,7 +43,7 @@ function JsonLd() {
     '@type': 'ItemList',
     name: 'US State Bridge Condition Rankings',
     description: 'All US states and territories ranked by percentage of bridges in poor condition',
-    url: 'https://bridgereport.org/rankings',
+    url: 'https://www.bridgereport.org/rankings',
     numberOfItems: 54,
     itemListOrder: 'https://schema.org/ItemListOrderDescending',
     itemListElement: [
@@ -51,19 +51,19 @@ function JsonLd() {
         '@type': 'ListItem',
         position: 1,
         name: 'U.S. Virgin Islands',
-        url: 'https://bridgereport.org/state/vi',
+        url: 'https://www.bridgereport.org/state/vi',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Iowa',
-        url: 'https://bridgereport.org/state/ia',
+        url: 'https://www.bridgereport.org/state/ia',
       },
       {
         '@type': 'ListItem',
         position: 3,
         name: 'West Virginia',
-        url: 'https://bridgereport.org/state/wv',
+        url: 'https://www.bridgereport.org/state/wv',
       },
     ],
   };

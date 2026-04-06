@@ -56,7 +56,7 @@ export function BreadcrumbJsonLd({ items }: { items: BreadcrumbItem[] }) {
         '@type': 'ListItem',
         position: index + 1,
         name: item.label,
-        item: item.href ? `https://bridgereport.org${item.href}` : undefined,
+        item: item.href ? `https://www.bridgereport.org${item.href}` : undefined,
       })),
   };
 

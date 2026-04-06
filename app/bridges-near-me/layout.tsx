@@ -5,14 +5,14 @@ export const metadata: Metadata = {
   description:
     'Find highway bridges near your location. View bridge conditions, ratings, and details for over 623,000 bridges across the United States.',
   alternates: {
-    canonical: 'https://bridgereport.org/bridges-near-me',
+    canonical: 'https://www.bridgereport.org/bridges-near-me',
   },
   openGraph: {
     title: 'Bridges Near Me',
     description:
       'Discover highway bridges near you with condition ratings and inspection details.',
     type: 'website',
-    url: 'https://bridgereport.org/bridges-near-me',
+    url: 'https://www.bridgereport.org/bridges-near-me',
     images: [
       {
         url: '/og-image.png',

@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   title: 'Contact Us - BridgeReport.org',
   description: 'Get in touch with the BridgeReport.org team. Contact us for data inquiries, feedback, media requests, or partnership opportunities.',
   alternates: {
-    canonical: 'https://bridgereport.org/contact',
+    canonical: 'https://www.bridgereport.org/contact',
   },
   openGraph: {
     title: 'Contact Us - BridgeReport.org',
     description: 'Get in touch with the BridgeReport.org team. Contact us for data inquiries, feedback, media requests, or partnership opportunities.',
-    url: 'https://bridgereport.org/contact',
+    url: 'https://www.bridgereport.org/contact',
     type: 'website',
     images: [
       {
@@ -38,13 +38,13 @@ function ContactJsonLd() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://bridgereport.org',
+        item: 'https://www.bridgereport.org',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Contact',
-        item: 'https://bridgereport.org/contact',
+        item: 'https://www.bridgereport.org/contact',
       },
     ],
   };
@@ -52,10 +52,10 @@ function ContactJsonLd() {
   const contactPageSchema = {
     '@context': 'https://schema.org',
     '@type': 'ContactPage',
-    '@id': 'https://bridgereport.org/contact',
+    '@id': 'https://www.bridgereport.org/contact',
     name: 'Contact BridgeReport.org',
     description: 'Get in touch with the BridgeReport.org team for data inquiries, feedback, media requests, or partnership opportunities.',
-    url: 'https://bridgereport.org/contact',
+    url: 'https://www.bridgereport.org/contact',
     mainEntity: {
       '@type': 'Organization',
       name: 'BridgeReport.org',
@@ -70,7 +70,7 @@ function ContactJsonLd() {
     isPartOf: {
       '@type': 'WebSite',
       name: 'BridgeReport.org',
-      url: 'https://bridgereport.org',
+      url: 'https://www.bridgereport.org',
     },
   };
 

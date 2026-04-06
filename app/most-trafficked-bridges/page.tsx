@@ -1,7 +1,8 @@
 import dynamicImport from 'next/dynamic';
 import Link from 'next/link';
 import { getBridgeRanking, formatNumber } from '@/lib/data';
-import Breadcrumbs, { BreadcrumbJsonLd } from '@/components/Breadcrumbs';
+import Breadcrumbs from '@/components/Breadcrumbs';
+import RankingJsonLd from '@/components/RankingJsonLd';
 import TraffickedBridgesMapWrapper from '@/components/TraffickedBridgesMapWrapper';
 import TrafficComparisonChart from '@/components/TrafficComparisonChart';
 import DataSourceFooter from '@/components/DataSourceFooter';
@@ -23,14 +24,14 @@ export const metadata: Metadata = {
   description:
     'Explore the busiest highway bridges in the United States, ranked by average daily traffic (ADT). These bridges carry hundreds of thousands of vehicles daily.',
   alternates: {
-    canonical: 'https://bridgereport.org/most-trafficked-bridges',
+    canonical: 'https://www.bridgereport.org/most-trafficked-bridges',
   },
   openGraph: {
     title: 'Most Trafficked Bridges in America',
     description:
       'The busiest highway bridges in the United States, ranked by average daily traffic.',
     type: 'website',
-    url: 'https://bridgereport.org/most-trafficked-bridges',
+    url: 'https://www.bridgereport.org/most-trafficked-bridges',
     images: [
       {
         url: '/og-image.png',
@@ -47,24 +48,6 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
 };
-
-function ListJsonLd({ count }: { count: number }) {
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Most Trafficked Bridges in America',
-    description: `Top ${count} busiest highway bridges in the United States by average daily traffic`,
-    numberOfItems: count,
-    itemListOrder: 'Descending',
-  };
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-    />
-  );
-}
 
 export default function MostTraffickedBridgesPage() {
   const bridges = getBridgeRanking('most_trafficked');
@@ -95,8 +78,16 @@ export default function MostTraffickedBridgesPage() {
 
   return (
     <>
-      <BreadcrumbJsonLd items={breadcrumbItems} />
-      <ListJsonLd count={bridges.length} />
+      <RankingJsonLd
+        headline="Most Trafficked Bridges in America"
+        description="The busiest highway bridges in the United States, ranked by average daily traffic (ADT). These critical infrastructure assets carry hundreds of thousands of vehicles every day across major metropolitan areas."
+        canonicalUrl="https://www.bridgereport.org/most-trafficked-bridges"
+        items={bridges}
+        listName="Most Trafficked Bridges in America"
+        listDescription={`Top ${bridges.length} busiest highway bridges in the United States by average daily traffic`}
+        itemListOrder="Descending"
+        breadcrumbItems={breadcrumbItems}
+      />
 
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">

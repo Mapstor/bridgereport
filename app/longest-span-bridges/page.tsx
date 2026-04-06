@@ -1,7 +1,8 @@
 import dynamicImport from 'next/dynamic';
 import Link from 'next/link';
 import { getBridgeRanking, formatNumber } from '@/lib/data';
-import Breadcrumbs, { BreadcrumbJsonLd } from '@/components/Breadcrumbs';
+import Breadcrumbs from '@/components/Breadcrumbs';
+import RankingJsonLd from '@/components/RankingJsonLd';
 import LongestSpanMapWrapper from '@/components/LongestSpanMapWrapper';
 import SpanComparisonChart from '@/components/SpanComparisonChart';
 import DataSourceFooter from '@/components/DataSourceFooter';
@@ -23,14 +24,14 @@ export const metadata: Metadata = {
   description:
     'Explore the bridges with the longest single spans in the United States. These engineering marvels include suspension bridges, cable-stayed bridges, and arch bridges.',
   alternates: {
-    canonical: 'https://bridgereport.org/longest-span-bridges',
+    canonical: 'https://www.bridgereport.org/longest-span-bridges',
   },
   openGraph: {
     title: 'Longest Span Bridges in America',
     description:
       'Highway bridges with the longest maximum span lengths in the United States.',
     type: 'website',
-    url: 'https://bridgereport.org/longest-span-bridges',
+    url: 'https://www.bridgereport.org/longest-span-bridges',
     images: [
       {
         url: '/og-image.png',
@@ -47,24 +48,6 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
 };
-
-function ListJsonLd({ count }: { count: number }) {
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Longest Span Bridges in America',
-    description: `Top ${count} highway bridges with the longest maximum span in the United States`,
-    numberOfItems: count,
-    itemListOrder: 'Descending',
-  };
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-    />
-  );
-}
 
 export default function LongestSpanBridgesPage() {
   const bridges = getBridgeRanking('longest_span');
@@ -94,8 +77,16 @@ export default function LongestSpanBridgesPage() {
 
   return (
     <>
-      <BreadcrumbJsonLd items={breadcrumbItems} />
-      <ListJsonLd count={bridges.length} />
+      <RankingJsonLd
+        headline="Longest Span Bridges in America"
+        description="Bridges with the longest maximum span lengths in the United States. These engineering achievements include iconic suspension bridges, modern cable-stayed designs, and impressive arch and truss structures."
+        canonicalUrl="https://www.bridgereport.org/longest-span-bridges"
+        items={bridges}
+        listName="Longest Span Bridges in America"
+        listDescription={`Top ${bridges.length} highway bridges with the longest maximum span in the United States`}
+        itemListOrder="Descending"
+        breadcrumbItems={breadcrumbItems}
+      />
 
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">

@@ -1,7 +1,8 @@
 import dynamicImport from 'next/dynamic';
 import Link from 'next/link';
 import { getBridgeRanking, formatNumber } from '@/lib/data';
-import Breadcrumbs, { BreadcrumbJsonLd } from '@/components/Breadcrumbs';
+import Breadcrumbs from '@/components/Breadcrumbs';
+import RankingJsonLd from '@/components/RankingJsonLd';
 import HistoricBridgesMapWrapper from '@/components/HistoricBridgesMapWrapper';
 import HistoricBridgesMaterialChart from '@/components/HistoricBridgesMaterialChart';
 import HistoricBridgesTimeline from '@/components/HistoricBridgesTimeline';
@@ -24,14 +25,14 @@ export const metadata: Metadata = {
   description:
     'Explore highway bridges listed on the National Register of Historic Places. These bridges represent significant engineering achievements and cultural heritage.',
   alternates: {
-    canonical: 'https://bridgereport.org/historic-bridges',
+    canonical: 'https://www.bridgereport.org/historic-bridges',
   },
   openGraph: {
     title: 'Historic Bridges in America',
     description:
       'Highway bridges listed on the National Register of Historic Places, preserving American engineering heritage.',
     type: 'website',
-    url: 'https://bridgereport.org/historic-bridges',
+    url: 'https://www.bridgereport.org/historic-bridges',
     images: [
       {
         url: '/og-image.png',
@@ -48,24 +49,6 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
 };
-
-function ListJsonLd({ count }: { count: number }) {
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Historic Bridges in America',
-    description: `${count} highway bridges listed on the National Register of Historic Places`,
-    numberOfItems: count,
-    itemListOrder: 'Ascending',
-  };
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-    />
-  );
-}
 
 export default function HistoricBridgesPage() {
   const bridges = getBridgeRanking('historic_bridges');
@@ -96,8 +79,16 @@ export default function HistoricBridgesPage() {
 
   return (
     <>
-      <BreadcrumbJsonLd items={breadcrumbItems} />
-      <ListJsonLd count={bridges.length} />
+      <RankingJsonLd
+        headline="Historic Bridges in America"
+        description="Highway bridges listed on the National Register of Historic Places. These 19th-century structures represent significant achievements in American engineering and are preserved for their cultural and architectural value."
+        canonicalUrl="https://www.bridgereport.org/historic-bridges"
+        items={bridges}
+        listName="Historic Bridges in America"
+        listDescription={`${bridges.length} highway bridges listed on the National Register of Historic Places`}
+        itemListOrder="Ascending"
+        breadcrumbItems={breadcrumbItems}
+      />
 
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">

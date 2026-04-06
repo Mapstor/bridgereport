@@ -449,55 +449,51 @@ export interface CoveredBridgeSummary {
   lon: number | null;
 }
 
+/** Pre-computed covered bridges data cache */
+let coveredBridgesCache: {
+  total: number;
+  byState: Array<{ state: string; stateName: string; count: number }>;
+  bridges: CoveredBridgeSummary[];
+} | null = null;
+
+/** Load pre-computed covered bridges data */
+function loadCoveredBridgesData(): typeof coveredBridgesCache {
+  if (coveredBridgesCache) return coveredBridgesCache;
+
+  const data = readJson<{
+    total: number;
+    byState: Array<{ state: string; stateName: string; count: number }>;
+    bridges: CoveredBridgeSummary[];
+  }>(dataPath('rankings', 'covered_bridges.json'));
+
+  if (data) {
+    coveredBridgesCache = data;
+    return data;
+  }
+
+  // Fallback to empty if file doesn't exist
+  return { total: 0, byState: [], bridges: [] };
+}
+
 /** Get all covered bridges for a state */
 export function getCoveredBridgesForState(state: string): CoveredBridgeSummary[] {
   const normalized = state.toUpperCase();
-  const bridgeIds = getBridgeIdsForState(normalized);
-  const coveredBridges: CoveredBridgeSummary[] = [];
+  const data = loadCoveredBridgesData();
+  if (!data) return [];
 
-  for (const id of bridgeIds) {
-    const bridge = getBridge(normalized, id);
-    if (bridge && isCoveredBridge(bridge)) {
-      coveredBridges.push({
-        id: bridge.id,
-        structureNumber: bridge.structureNumber,
-        state: bridge.state,
-        stateName: bridge.stateName,
-        countyFips: bridge.countyFips,
-        countyName: getCountyName(bridge.state, bridge.countyFips),
-        facilityCarried: bridge.facilityCarried,
-        featuresIntersected: bridge.featuresIntersected,
-        location: bridge.location,
-        yearBuilt: bridge.yearBuilt,
-        lengthFt: bridge.lengthFt,
-        conditionCategory: bridge.conditionCategory,
-        lowestRating: bridge.lowestRating,
-        historical: bridge.historical,
-        historicalName: bridge.historicalName,
-        lat: bridge.lat,
-        lon: bridge.lon,
-      });
-    }
-  }
-
-  // Sort by year built (oldest first)
-  return coveredBridges.sort((a, b) => (a.yearBuilt || 9999) - (b.yearBuilt || 9999));
+  // Filter bridges for this state
+  return data.bridges.filter(b => b.state === normalized);
 }
 
 /** Get covered bridge count for a state (faster than loading all) */
 export function getCoveredBridgeCountForState(state: string): number {
   const normalized = state.toUpperCase();
-  const bridgeIds = getBridgeIdsForState(normalized);
-  let count = 0;
+  const data = loadCoveredBridgesData();
+  if (!data) return 0;
 
-  for (const id of bridgeIds) {
-    const bridge = getBridge(normalized, id);
-    if (bridge && isCoveredBridge(bridge)) {
-      count++;
-    }
-  }
-
-  return count;
+  // Look up in byState array for O(1) lookup
+  const stateData = data.byState.find(s => s.state === normalized);
+  return stateData?.count || 0;
 }
 
 /** Get all covered bridges nationally with counts per state */
@@ -506,34 +502,8 @@ export function getAllCoveredBridges(): {
   byState: Array<{ state: string; stateName: string; count: number }>;
   bridges: CoveredBridgeSummary[];
 } {
-  const states = getAllStateAbbrs();
-  const byState: Array<{ state: string; stateName: string; count: number }> = [];
-  const allBridges: CoveredBridgeSummary[] = [];
-
-  for (const state of states) {
-    const bridges = getCoveredBridgesForState(state);
-    if (bridges.length > 0) {
-      const stateName = getStateName(state) || state;
-      byState.push({
-        state,
-        stateName,
-        count: bridges.length,
-      });
-      allBridges.push(...bridges);
-    }
-  }
-
-  // Sort states by count (most first)
-  byState.sort((a, b) => b.count - a.count);
-
-  // Sort all bridges by year built (oldest first)
-  allBridges.sort((a, b) => (a.yearBuilt || 9999) - (b.yearBuilt || 9999));
-
-  return {
-    total: allBridges.length,
-    byState,
-    bridges: allBridges,
-  };
+  const data = loadCoveredBridgesData();
+  return data || { total: 0, byState: [], bridges: [] };
 }
 
 /** Get condition color class for Tailwind */

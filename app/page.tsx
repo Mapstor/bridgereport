@@ -21,14 +21,14 @@ export const metadata: Metadata = {
   description:
     'Explore condition data for all 623,218 US highway bridges. Find bridge ratings, deficiency status, and infrastructure reports by state, county, or location.',
   alternates: {
-    canonical: 'https://bridgereport.org',
+    canonical: 'https://www.bridgereport.org',
   },
   openGraph: {
     title: 'US Bridge Conditions — 623,218 Bridges Rated',
     description:
       'Explore condition data for all 623,218 US highway bridges. Find bridge ratings and infrastructure reports.',
     type: 'website',
-    url: 'https://bridgereport.org',
+    url: 'https://www.bridgereport.org',
     images: [
       {
         url: '/og-image.png',
@@ -53,30 +53,30 @@ function JsonLd() {
     '@graph': [
       {
         '@type': 'WebSite',
-        '@id': 'https://bridgereport.org/#website',
-        url: 'https://bridgereport.org',
+        '@id': 'https://www.bridgereport.org/#website',
+        url: 'https://www.bridgereport.org',
         name: 'BridgeReport.org',
         description: 'Comprehensive bridge condition data for America\'s highway bridges',
         publisher: {
-          '@id': 'https://bridgereport.org/#organization',
+          '@id': 'https://www.bridgereport.org/#organization',
         },
         potentialAction: {
           '@type': 'SearchAction',
           target: {
             '@type': 'EntryPoint',
-            urlTemplate: 'https://bridgereport.org/bridges-near-me?q={search_term_string}',
+            urlTemplate: 'https://www.bridgereport.org/bridges-near-me?q={search_term_string}',
           },
           'query-input': 'required name=search_term_string',
         },
       },
       {
         '@type': 'Organization',
-        '@id': 'https://bridgereport.org/#organization',
+        '@id': 'https://www.bridgereport.org/#organization',
         name: 'BridgeReport.org',
-        url: 'https://bridgereport.org',
+        url: 'https://www.bridgereport.org',
         logo: {
           '@type': 'ImageObject',
-          url: 'https://bridgereport.org/icon.png',
+          url: 'https://www.bridgereport.org/icon.png',
           width: 512,
           height: 512,
         },
@@ -92,10 +92,10 @@ function JsonLd() {
       },
       {
         '@type': 'Dataset',
-        '@id': 'https://bridgereport.org/#dataset',
+        '@id': 'https://www.bridgereport.org/#dataset',
         name: 'US National Bridge Inventory Data',
         description: 'Complete inventory of 623,218 highway bridges in the United States with condition ratings, inspection data, and infrastructure metrics.',
-        url: 'https://bridgereport.org',
+        url: 'https://www.bridgereport.org',
         license: 'https://www.usa.gov/government-works',
         creator: {
           '@type': 'GovernmentOrganization',

@@ -37,13 +37,13 @@ export async function generateMetadata({
     title: `${title} | BridgeReport.org`,
     description,
     alternates: {
-      canonical: `https://bridgereport.org/worst-bridges/${state.toLowerCase()}`,
+      canonical: `https://www.bridgereport.org/worst-bridges/${state.toLowerCase()}`,
     },
     openGraph: {
       title: `Worst Bridges in ${stateData.stateName}`,
       description,
       type: 'website',
-      url: `https://bridgereport.org/worst-bridges/${state.toLowerCase()}`,
+      url: `https://www.bridgereport.org/worst-bridges/${state.toLowerCase()}`,
       images: [
         {
           url: '/og-image.png',

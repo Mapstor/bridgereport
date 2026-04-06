@@ -83,13 +83,13 @@ export async function generateMetadata({
     title: `${title} | BridgeReport.org`,
     description,
     alternates: {
-      canonical: `https://bridgereport.org/city/${state.toLowerCase()}/${slug}`,
+      canonical: `https://www.bridgereport.org/city/${state.toLowerCase()}/${slug}`,
     },
     openGraph: {
       title: `Bridges in ${cityName}, ${city.stateName}`,
       description,
       type: 'website',
-      url: `https://bridgereport.org/city/${state.toLowerCase()}/${slug}`,
+      url: `https://www.bridgereport.org/city/${state.toLowerCase()}/${slug}`,
       images: [
         {
           url: '/og-image.png',

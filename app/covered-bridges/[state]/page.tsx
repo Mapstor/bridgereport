@@ -46,13 +46,13 @@ export async function generateMetadata({
     title: `Covered Bridges in ${stateName} — ${count} Historic Wooden Bridges | BridgeReport.org`,
     description: `Explore ${count} covered bridges in ${stateName}. See locations, conditions, year built, and historic status of these iconic wooden structures.`,
     alternates: {
-      canonical: `https://bridgereport.org/covered-bridges/${state.toLowerCase()}`,
+      canonical: `https://www.bridgereport.org/covered-bridges/${state.toLowerCase()}`,
     },
     openGraph: {
       title: `Covered Bridges in ${stateName}`,
       description: `Explore ${count} covered bridges in ${stateName} with condition ratings and locations.`,
       type: 'website',
-      url: `https://bridgereport.org/covered-bridges/${state.toLowerCase()}`,
+      url: `https://www.bridgereport.org/covered-bridges/${state.toLowerCase()}`,
       images: [
         {
           url: '/og-image.png',

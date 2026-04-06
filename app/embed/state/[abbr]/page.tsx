@@ -43,7 +43,7 @@ export default async function StateWidget({
 
   const theme = THEMES[themeParam === 'dark' ? 'dark' : 'light'];
   const isCompact = compact === 'true';
-  const siteUrl = 'https://bridgereport.org';
+  const siteUrl = 'https://www.bridgereport.org';
   const stateUrl = `${siteUrl}/state/${abbr.toLowerCase()}`;
 
   if (isCompact) {

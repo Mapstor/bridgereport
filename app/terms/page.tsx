@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   title: 'Terms of Use - BridgeReport.org',
   description: 'Terms of Use for BridgeReport.org. Read the terms and conditions governing your use of our bridge infrastructure data website.',
   alternates: {
-    canonical: 'https://bridgereport.org/terms',
+    canonical: 'https://www.bridgereport.org/terms',
   },
   openGraph: {
     title: 'Terms of Use - BridgeReport.org',
     description: 'Terms of Use for BridgeReport.org. Read the terms and conditions governing your use of our bridge infrastructure data website.',
-    url: 'https://bridgereport.org/terms',
+    url: 'https://www.bridgereport.org/terms',
     type: 'website',
     images: [
       {
@@ -38,13 +38,13 @@ function TermsJsonLd() {
         '@type': 'ListItem',
         position: 1,
         name: 'Home',
-        item: 'https://bridgereport.org',
+        item: 'https://www.bridgereport.org',
       },
       {
         '@type': 'ListItem',
         position: 2,
         name: 'Terms of Use',
-        item: 'https://bridgereport.org/terms',
+        item: 'https://www.bridgereport.org/terms',
       },
     ],
   };
@@ -52,16 +52,16 @@ function TermsJsonLd() {
   const webPageSchema = {
     '@context': 'https://schema.org',
     '@type': 'WebPage',
-    '@id': 'https://bridgereport.org/terms',
+    '@id': 'https://www.bridgereport.org/terms',
     name: 'Terms of Use - BridgeReport.org',
     description: 'Terms of Use for BridgeReport.org. Read the terms and conditions governing your use of our bridge infrastructure data website.',
-    url: 'https://bridgereport.org/terms',
+    url: 'https://www.bridgereport.org/terms',
     dateModified: '2025-04-06',
     inLanguage: 'en-US',
     isPartOf: {
       '@type': 'WebSite',
       name: 'BridgeReport.org',
-      url: 'https://bridgereport.org',
+      url: 'https://www.bridgereport.org',
     },
     about: {
       '@type': 'Thing',

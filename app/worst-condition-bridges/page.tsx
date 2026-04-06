@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getWorstConditionStats, getBridgeRankingPaginated, formatNumber } from '@/lib/data';
-import Breadcrumbs, { BreadcrumbJsonLd } from '@/components/Breadcrumbs';
+import Breadcrumbs from '@/components/Breadcrumbs';
+import RankingJsonLd from '@/components/RankingJsonLd';
 import WorstConditionMapWrapper from '@/components/WorstConditionMapWrapper';
 import DataSourceFooter from '@/components/DataSourceFooter';
 import PaginatedRankingTable from '@/components/PaginatedRankingTable';
@@ -11,14 +12,14 @@ export const metadata: Metadata = {
   description:
     'Search bridges rated 0-3 on the federal condition scale. Find failed, critical, and serious condition bridges by state with full inspection data.',
   alternates: {
-    canonical: 'https://bridgereport.org/worst-condition-bridges',
+    canonical: 'https://www.bridgereport.org/worst-condition-bridges',
   },
   openGraph: {
     title: 'Worst Condition Bridges in America',
     description:
       'Highway bridges rated 0-3 — from failed to serious condition.',
     type: 'website',
-    url: 'https://bridgereport.org/worst-condition-bridges',
+    url: 'https://www.bridgereport.org/worst-condition-bridges',
     images: [
       {
         url: '/og-image.png',
@@ -35,24 +36,6 @@ export const metadata: Metadata = {
     images: ['/og-image.png'],
   },
 };
-
-function ListJsonLd({ count }: { count: number }) {
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: 'Worst Condition Bridges in America',
-    description: `Top ${count} highway bridges with the lowest condition ratings in the United States`,
-    numberOfItems: count,
-    itemListOrder: 'Ascending',
-  };
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-    />
-  );
-}
 
 export default function WorstConditionBridgesPage() {
   // Load pre-computed stats (no need to load all 9,800+ bridges)
@@ -71,8 +54,16 @@ export default function WorstConditionBridgesPage() {
 
   return (
     <>
-      <BreadcrumbJsonLd items={breadcrumbItems} />
-      <ListJsonLd count={total} />
+      <RankingJsonLd
+        headline="Worst Condition Bridges in America"
+        description="All highway bridges rated 0-3 on the federal condition scale. These bridges have the most critical structural needs and are prioritized for repair or closure."
+        canonicalUrl="https://www.bridgereport.org/worst-condition-bridges"
+        items={mapBridges}
+        listName="Worst Condition Bridges in America"
+        listDescription={`${total} highway bridges with the lowest condition ratings in the United States`}
+        itemListOrder="Ascending"
+        breadcrumbItems={breadcrumbItems}
+      />
 
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">

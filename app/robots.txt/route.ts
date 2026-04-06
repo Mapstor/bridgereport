@@ -5,25 +5,24 @@
 
 import { NextResponse } from 'next/server';
 
-const BASE_URL = 'https://bridgereport.org';
-
 export async function GET() {
   const robotsTxt = `# BridgeReport.org robots.txt
-# https://bridgereport.org
+# Canonical domain: https://www.bridgereport.org
 
 User-agent: *
 Allow: /
 
-# Sitemaps
-Sitemap: ${BASE_URL}/sitemap-index.xml
+# Main Sitemap
+Sitemap: https://www.bridgereport.org/sitemap.xml
 
 # Crawl-delay for polite crawling
 Crawl-delay: 1
 
-# Block common non-content paths
+# Block non-content paths
 Disallow: /api/
 Disallow: /_next/
 Disallow: /static/
+Disallow: /embed/
 `;
 
   return new NextResponse(robotsTxt, {
