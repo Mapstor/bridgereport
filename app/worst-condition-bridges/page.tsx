@@ -9,14 +9,14 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: 'Worst Condition Bridges in America — Ratings 0-3 | BridgeReport.org',
   description:
-    'Search 9,800+ bridges rated 0-3 on the federal condition scale. Find failed, critical, and serious condition bridges by state with full inspection data.',
+    'Search bridges rated 0-3 on the federal condition scale. Find failed, critical, and serious condition bridges by state with full inspection data.',
   alternates: {
     canonical: 'https://bridgereport.org/worst-condition-bridges',
   },
   openGraph: {
     title: 'Worst Condition Bridges in America',
     description:
-      'All 9,800+ highway bridges rated 0-3 — from failed to serious condition.',
+      'Highway bridges rated 0-3 — from failed to serious condition.',
     type: 'website',
     url: 'https://bridgereport.org/worst-condition-bridges',
     images: [
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Worst Condition Bridges in America',
-    description: 'All 9,800+ highway bridges rated 0-3 — from failed to serious condition.',
+    description: 'Highway bridges rated 0-3 — from failed to serious condition.',
     images: ['/og-image.png'],
   },
 };
