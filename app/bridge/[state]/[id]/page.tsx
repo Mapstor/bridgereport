@@ -3,6 +3,7 @@ import Link from 'next/link';
 import {
   getBridge,
   getCountyName,
+  getState,
   formatNumber,
 } from '@/lib/data';
 import { generateBridgeTrend } from '@/lib/trends';
@@ -189,6 +190,37 @@ function BridgeFAQJsonLd({ bridge, countyName }: { bridge: Bridge; countyName: s
   );
 }
 
+// Component for bridges not in our database (under 50ft)
+function BridgeNotFoundPage({ state, id, stateName }: { state: string; id: string; stateName: string | null }) {
+  return (
+    <div className="min-h-[60vh] flex items-center justify-center px-4">
+      <div className="max-w-lg text-center">
+        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+          <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 2a10 10 0 110 20 10 10 0 010-20z" />
+          </svg>
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900 mb-3">Bridge Not in Database</h1>
+        <p className="text-slate-600 mb-6">
+          This bridge ID ({id}) is not in our detailed database. BridgeReport focuses on bridges 50 feet and longer —
+          smaller structures like culverts and minor crossings are not included in our records.
+        </p>
+        <div className="space-y-3">
+          <Link
+            href={`/state/${state.toLowerCase()}`}
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          >
+            View All {stateName || state.toUpperCase()} Bridges
+          </Link>
+          <p className="text-sm text-slate-500">
+            or <Link href="/" className="text-blue-600 hover:underline">search for another bridge</Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // Detail row component
 function DetailRow({ label, value, mono = false }: { label: string; value: React.ReactNode; mono?: boolean }) {
   return (
@@ -208,7 +240,8 @@ export default async function BridgePage({
   const bridge = getBridge(state.toUpperCase(), id);
 
   if (!bridge) {
-    notFound();
+    const stateData = getState(state.toUpperCase());
+    return <BridgeNotFoundPage state={state} id={id} stateName={stateData?.stateName || null} />;
   }
 
   const countyName = getCountyName(state, bridge.countyFips);

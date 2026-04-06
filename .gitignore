@@ -41,6 +41,6 @@ next-env.d.ts
 
 # Raw data (too large for git)
 nbi_raw.csv
-data/bridges/
+data/bridges-old/
 data/cities/
 data/nbi-historical/
