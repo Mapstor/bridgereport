@@ -56,10 +56,10 @@ export const metadata: Metadata = {
     },
   },
   verification: {
-    // Add verification codes when available
-    // google: 'verification_code',
-    // yandex: 'verification_code',
-    // bing: 'verification_code',
+    google: 'google12f8c2f9c03913a3',
+    other: {
+      'msvalidate.01': '25FEF679FDC5F0B6D248CF985B524BA1',
+    },
   },
 };
 
