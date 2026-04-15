@@ -20,7 +20,7 @@ const RankingTable = dynamicImport(() => import('@/components/RankingTable'), {
 });
 
 export const metadata: Metadata = {
-  title: 'Most Trafficked Bridges in America — Highest ADT Rankings | BridgeReport.org',
+  title: 'Most Trafficked Bridges in America — Highest ADT Rankings',
   description:
     'Explore the busiest highway bridges in the United States, ranked by average daily traffic (ADT). These bridges carry hundreds of thousands of vehicles daily.',
   alternates: {

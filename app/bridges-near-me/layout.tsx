@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Bridges Near Me — Find Local Highway Bridges | BridgeReport.org',
+  title: 'Bridges Near Me — Find Local Highway Bridges',
   description:
     'Find highway bridges near your location. View bridge conditions, ratings, and details for over 623,000 bridges across the United States.',
   alternates: {

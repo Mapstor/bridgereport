@@ -43,7 +43,7 @@ export async function generateMetadata({
   }
 
   return {
-    title: `Covered Bridges in ${stateName} — ${count} Historic Wooden Bridges | BridgeReport.org`,
+    title: `Covered Bridges in ${stateName} — ${count} Historic Wooden Bridges`,
     description: `Explore ${count} covered bridges in ${stateName}. See locations, conditions, year built, and historic status of these iconic wooden structures.`,
     alternates: {
       canonical: `https://www.bridgereport.org/covered-bridges/${state.toLowerCase()}`,

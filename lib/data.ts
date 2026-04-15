@@ -261,6 +261,50 @@ export function getBridge(state: string, structureId: string): Bridge | null {
   return readJson<Bridge>(dataPath('bridges', normalized, `${filename}.json`));
 }
 
+/**
+ * Fallback: find minimal bridge data from state summary lists (worstBridges, mostTrafficked)
+ * Used when a bridge doesn't have a full detail JSON file (e.g., bridges < 50ft)
+ */
+export function getMinimalBridge(state: string, structureId: string): RankingBridge | null {
+  const normalized = state.toUpperCase();
+
+  // Build the full bridge ID to search for
+  let searchId = structureId;
+  try {
+    searchId = decodeURIComponent(searchId);
+  } catch {
+    // Already decoded
+  }
+
+  // Ensure ID has state prefix (e.g., "PA-000000000002338")
+  const statePrefix = `${normalized}-`;
+  if (!searchId.toUpperCase().startsWith(statePrefix)) {
+    searchId = `${statePrefix}${searchId}`;
+  }
+
+  // Search in the state summary data (worstBridges, mostTrafficked)
+  const stateData = readJson<StateSummary>(dataPath('states', `${normalized}.json`));
+  if (stateData) {
+    for (const list of [stateData.worstBridges, stateData.mostTrafficked]) {
+      if (!list) continue;
+      const found = list.find(b => b.id === searchId);
+      if (found) return found as unknown as RankingBridge;
+    }
+  }
+
+  // Also check national ranking files as a last resort
+  const rankingTypes = ['worst_condition', 'oldest_bridges', 'longest_bridges', 'most_trafficked', 'longest_span', 'historic_bridges'] as const;
+  for (const rankType of rankingTypes) {
+    const rankings = readJson<RankingBridge[]>(dataPath('rankings', `${rankType}.json`));
+    if (rankings) {
+      const found = rankings.find(b => b.id === searchId);
+      if (found) return found;
+    }
+  }
+
+  return null;
+}
+
 /** Get list of all bridge structure IDs for a state */
 export function getBridgeIdsForState(state: string): string[] {
   const normalized = state.toUpperCase();
@@ -425,7 +469,7 @@ export function getStateName(abbr: string): string | null {
  * Criteria: Wood/Timber material (code 7) + Truss design (codes 09 or 10)
  */
 export function isCoveredBridge(bridge: Bridge): boolean {
-  return bridge.material === '7' && (bridge.designType === '09' || bridge.designType === '10');
+  return bridge.material === '7' && (bridge.designType === '09' || bridge.designType === '10' || bridge.designType === '11' || bridge.designType === '12');
 }
 
 /** Covered bridge summary for listings */
@@ -447,6 +491,9 @@ export interface CoveredBridgeSummary {
   historicalName: string | null;
   lat: number | null;
   lon: number | null;
+  maxSpanFt: number | null;
+  designTypeName: string | null;
+  adt: number | null;
 }
 
 /** Pre-computed covered bridges data cache */

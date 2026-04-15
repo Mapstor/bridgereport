@@ -21,7 +21,7 @@ const RankingTable = dynamicImport(() => import('@/components/RankingTable'), {
 });
 
 export const metadata: Metadata = {
-  title: 'Historic Bridges in America — National Register of Historic Places | BridgeReport.org',
+  title: 'Historic Bridges in America — National Register of Historic Places',
   description:
     'Explore highway bridges listed on the National Register of Historic Places. These bridges represent significant engineering achievements and cultural heritage.',
   alternates: {

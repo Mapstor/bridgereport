@@ -2,8 +2,8 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import {
   getBridge,
+  getMinimalBridge,
   getCountyName,
-  getState,
   formatNumber,
 } from '@/lib/data';
 import { generateBridgeTrend } from '@/lib/trends';
@@ -14,7 +14,7 @@ import DataSourceFooter from '@/components/DataSourceFooter';
 import { BridgeTrendSection } from '@/components/TrendSection';
 import SingleBridgeMap from '@/components/SingleBridgeMap';
 import type { Metadata } from 'next';
-import type { Bridge } from '@/types';
+import type { Bridge, RankingBridge } from '@/types';
 
 // Use dynamic rendering to avoid memory issues during build (623K+ pages)
 export const dynamic = 'force-dynamic';
@@ -26,7 +26,7 @@ export async function generateMetadata({
   params: Promise<{ state: string; id: string }>;
 }): Promise<Metadata> {
   const { state, id } = await params;
-  const bridge = getBridge(state.toUpperCase(), id);
+  const bridge = getBridge(state.toUpperCase(), id) || getMinimalBridge(state.toUpperCase(), id);
 
   if (!bridge) {
     return {
@@ -38,7 +38,7 @@ export async function generateMetadata({
   const description = `${bridge.facilityCarried || 'Bridge'} in ${bridge.location || bridge.stateName}. Built ${bridge.yearBuilt || 'unknown'}. Condition: ${bridge.conditionCategory || 'unknown'}. Average daily traffic: ${bridge.adt ? formatNumber(bridge.adt) : 'N/A'}.`;
 
   return {
-    title: `${title} — Bridge Condition | BridgeReport.org`,
+    title: `${title} — Bridge Condition`,
     description,
     alternates: {
       canonical: `https://www.bridgereport.org/bridge/${state.toLowerCase()}/${id}`,
@@ -203,37 +203,6 @@ function BridgePageJsonLd({ bridge, countyName, breadcrumbItems }: { bridge: Bri
   );
 }
 
-// Component for bridges not in our database (under 50ft)
-function BridgeNotFoundPage({ state, id, stateName }: { state: string; id: string; stateName: string | null }) {
-  return (
-    <div className="min-h-[60vh] flex items-center justify-center px-4">
-      <div className="max-w-lg text-center">
-        <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
-          <svg className="w-8 h-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 2a10 10 0 110 20 10 10 0 010-20z" />
-          </svg>
-        </div>
-        <h1 className="text-2xl font-bold text-slate-900 mb-3">Bridge Not in Database</h1>
-        <p className="text-slate-600 mb-6">
-          This bridge ID ({id}) is not in our detailed database. BridgeReport focuses on bridges 50 feet and longer —
-          smaller structures like culverts and minor crossings are not included in our records.
-        </p>
-        <div className="space-y-3">
-          <Link
-            href={`/state/${state.toLowerCase()}`}
-            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-          >
-            View All {stateName || state.toUpperCase()} Bridges
-          </Link>
-          <p className="text-sm text-slate-500">
-            or <Link href="/" className="text-blue-600 hover:underline">search for another bridge</Link>
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 // Detail row component
 function DetailRow({ label, value, mono = false }: { label: string; value: React.ReactNode; mono?: boolean }) {
   return (
@@ -241,6 +210,223 @@ function DetailRow({ label, value, mono = false }: { label: string; value: React
       <span className="text-slate-600">{label}</span>
       <span className={`text-slate-900 font-medium ${mono ? 'font-mono' : ''}`}>{value || '—'}</span>
     </div>
+  );
+}
+
+function MinimalBridgePage({
+  bridge,
+  state,
+  countyName,
+}: {
+  bridge: RankingBridge;
+  state: string;
+  countyName: string | null;
+}) {
+  const breadcrumbItems = [
+    { label: 'Home', href: '/' },
+    { label: bridge.stateName, href: `/state/${state.toLowerCase()}` },
+    ...(countyName ? [{ label: countyName }] : []),
+    { label: bridge.facilityCarried || 'Bridge' },
+  ];
+
+  const hasLocation = bridge.lat !== null && bridge.lon !== null;
+
+  return (
+    <>
+      {/* Hero Section */}
+      <section className="bg-slate-900 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+          <Breadcrumbs items={breadcrumbItems} className="mb-6" />
+
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+            {bridge.facilityCarried || 'Bridge'}
+          </h1>
+          <p className="text-xl text-slate-300 mb-4">
+            over {bridge.featuresIntersected || 'Unknown'}
+          </p>
+          <p className="text-slate-400">
+            {bridge.location && `${bridge.location}, `}
+            {countyName && `${countyName}, `}
+            {bridge.stateName}
+          </p>
+
+          {/* Quick Stats */}
+          <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-slate-800 rounded-lg p-4">
+              <p className="text-sm text-slate-400 mb-1">Condition</p>
+              <ConditionBadge condition={bridge.conditionCategory} size="lg" />
+            </div>
+            <div className="bg-slate-800 rounded-lg p-4">
+              <p className="text-sm text-slate-400 mb-1">Year Built</p>
+              <p className="text-2xl font-bold font-mono">{bridge.yearBuilt || '—'}</p>
+            </div>
+            <div className="bg-slate-800 rounded-lg p-4">
+              <p className="text-sm text-slate-400 mb-1">Daily Traffic</p>
+              <p className="text-2xl font-bold font-mono">{bridge.adt ? formatNumber(bridge.adt) : '—'}</p>
+            </div>
+            <div className="bg-slate-800 rounded-lg p-4">
+              <p className="text-sm text-slate-400 mb-1">Length</p>
+              <p className="text-2xl font-bold font-mono">
+                {bridge.lengthFt ? `${formatNumber(Math.round(bridge.lengthFt))} ft` : '—'}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="grid lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            {/* About This Bridge */}
+            <section className="mb-8">
+              <h2 className="text-2xl font-bold text-slate-900 mb-4">About This Bridge</h2>
+              <div className="prose prose-slate max-w-none">
+                <p className="text-slate-600 leading-relaxed mb-4">
+                  {bridge.facilityCarried || 'This bridge'} carries traffic over {bridge.featuresIntersected || 'the crossing'} in {countyName ? `${countyName}, ` : ''}{bridge.stateName}.
+                  {bridge.yearBuilt && ` Built in ${bridge.yearBuilt}, this structure is ${new Date().getFullYear() - bridge.yearBuilt} years old.`}
+                  {bridge.materialName && bridge.designTypeName && ` The bridge features ${bridge.materialName.toLowerCase()} construction with a ${bridge.designTypeName.toLowerCase()} design.`}
+                </p>
+                <p className="text-slate-600 leading-relaxed mb-4">
+                  The bridge is currently rated in <strong>{bridge.conditionCategory || 'unknown'}</strong> condition based on federal inspection criteria.
+                  {bridge.lowestRating !== null && ` Its lowest component rating is ${bridge.lowestRating} on the 0-9 federal scale.`}
+                  {bridge.structurallyDeficient && ' It is classified as structurally deficient, meaning one or more components have received a rating of 4 or below. This designation indicates significant deterioration that warrants attention, though the bridge remains safe for travel within its posted limits.'}
+                </p>
+              </div>
+            </section>
+
+            {/* Condition Overview */}
+            <section className="bg-white rounded-xl border border-slate-200 p-6">
+              <h2 className="text-xl font-semibold text-slate-900 mb-4">Condition Summary</h2>
+
+              {bridge.structurallyDeficient && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                  <p className="font-semibold text-red-800">Structurally Deficient</p>
+                  <p className="text-sm text-red-700 mt-1">
+                    This bridge has one or more component ratings of 4 or below, indicating significant deterioration
+                    that requires attention. The bridge remains safe for travel but may have load restrictions.
+                  </p>
+                </div>
+              )}
+
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-slate-100 border-2 border-slate-200 rounded-lg flex items-center justify-center font-bold font-mono text-lg text-slate-600">
+                    {bridge.lowestRating ?? '—'}
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">Lowest Rating</p>
+                    <p className="text-xs text-slate-500">Determines condition category</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-4 text-sm text-slate-500">
+                <p>
+                  NBI condition ratings range from 0 (failed) to 9 (excellent). The overall condition
+                  category is determined by the lowest individual component rating.
+                </p>
+              </div>
+            </section>
+
+            {/* Bridge Details */}
+            <section className="bg-white rounded-xl border border-slate-200 p-6">
+              <h2 className="text-xl font-semibold text-slate-900 mb-4">Bridge Details</h2>
+              <div className="grid md:grid-cols-2 gap-x-8">
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Construction</h3>
+                  <DetailRow label="Year Built" value={bridge.yearBuilt} mono />
+                  <DetailRow label="Material" value={bridge.materialName} />
+                  <DetailRow label="Design Type" value={bridge.designTypeName} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-500 uppercase tracking-wide mb-3">Dimensions</h3>
+                  <DetailRow
+                    label="Total Length"
+                    value={bridge.lengthFt ? `${formatNumber(Math.round(bridge.lengthFt))} ft` : null}
+                    mono
+                  />
+                  <DetailRow
+                    label="Max Span"
+                    value={bridge.maxSpanFt ? `${Math.round(bridge.maxSpanFt)} ft` : null}
+                    mono
+                  />
+                </div>
+              </div>
+            </section>
+
+            {/* Note about limited data */}
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-6">
+              <h3 className="font-semibold text-blue-900 mb-2">Limited Detail Available</h3>
+              <p className="text-sm text-blue-800">
+                This is a shorter bridge ({bridge.lengthFt ? `${Math.round(bridge.lengthFt)} ft` : 'under 50 ft'}). Detailed component-level inspection
+                data, load ratings, traffic projections, and historical trend analysis are available for
+                bridges 50 feet and longer. Basic condition and identification data is shown above from the
+                National Bridge Inventory.
+              </p>
+            </div>
+          </div>
+
+          {/* Sidebar */}
+          <div className="space-y-8">
+            {/* Map */}
+            {hasLocation && (
+              <section className="bg-white rounded-xl border border-slate-200 p-4">
+                <h2 className="text-lg font-semibold text-slate-900 mb-3">Location</h2>
+                <SingleBridgeMap
+                  lat={bridge.lat!}
+                  lon={bridge.lon!}
+                  condition={bridge.conditionCategory}
+                  facilityCarried={bridge.facilityCarried}
+                  featuresIntersected={bridge.featuresIntersected}
+                  height={300}
+                />
+                <p className="mt-2 text-xs text-slate-500 text-center">
+                  {bridge.lat?.toFixed(6)}, {bridge.lon?.toFixed(6)}
+                </p>
+              </section>
+            )}
+
+            {/* Structure ID */}
+            <section className="bg-white rounded-xl border border-slate-200 p-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-3">Identification</h2>
+              <DetailRow label="NBI ID" value={bridge.id} mono />
+              <DetailRow label="State" value={bridge.stateName} />
+              <DetailRow label="County FIPS" value={bridge.countyFips} mono />
+            </section>
+
+            {/* Internal Links */}
+            <section className="bg-slate-50 rounded-xl p-6">
+              <h2 className="text-lg font-semibold text-slate-900 mb-4">Explore More</h2>
+              <div className="space-y-3">
+                <Link
+                  href={`/state/${state.toLowerCase()}`}
+                  className="block bg-white rounded-lg border border-slate-200 p-4 hover:border-blue-300 hover:shadow-sm transition-all"
+                >
+                  <p className="font-medium text-slate-900">All {bridge.stateName} Bridges</p>
+                  <p className="text-sm text-slate-500">View statewide bridge data</p>
+                </Link>
+                <Link
+                  href={`/worst-bridges/${state.toLowerCase()}`}
+                  className="block bg-white rounded-lg border border-slate-200 p-4 hover:border-blue-300 hover:shadow-sm transition-all"
+                >
+                  <p className="font-medium text-slate-900">Worst Bridges in {bridge.stateName}</p>
+                  <p className="text-sm text-slate-500">See the lowest-rated bridges</p>
+                </Link>
+                <Link
+                  href="/"
+                  className="block bg-white rounded-lg border border-slate-200 p-4 hover:border-blue-300 hover:shadow-sm transition-all"
+                >
+                  <p className="font-medium text-slate-900">National Overview</p>
+                  <p className="text-sm text-slate-500">Compare all 50 states</p>
+                </Link>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <DataSourceFooter />
+      </div>
+    </>
   );
 }
 
@@ -253,8 +439,13 @@ export default async function BridgePage({
   const bridge = getBridge(state.toUpperCase(), id);
 
   if (!bridge) {
-    const stateData = getState(state.toUpperCase());
-    return <BridgeNotFoundPage state={state} id={id} stateName={stateData?.stateName || null} />;
+    // Try minimal bridge data from ranking/state lists
+    const minimalBridge = getMinimalBridge(state.toUpperCase(), id);
+    if (minimalBridge) {
+      const countyName = getCountyName(state, minimalBridge.countyFips);
+      return <MinimalBridgePage bridge={minimalBridge} state={state} countyName={countyName} />;
+    }
+    notFound();
   }
 
   const countyName = getCountyName(state, bridge.countyFips);

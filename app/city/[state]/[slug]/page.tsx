@@ -80,7 +80,7 @@ export async function generateMetadata({
   const description = `Explore ${formatNumber(city.total)} highway bridges in ${cityName}, ${city.stateName}. ${formatNumber(city.poor)} bridges (${formatPct(city.poorPct)}) are in poor condition. View all bridges and condition ratings.`;
 
   return {
-    title: `${title} | BridgeReport.org`,
+    title,
     description,
     alternates: {
       canonical: `https://www.bridgereport.org/city/${state.toLowerCase()}/${slug}`,

@@ -20,7 +20,7 @@ const RankingTable = dynamicImport(() => import('@/components/RankingTable'), {
 });
 
 export const metadata: Metadata = {
-  title: 'Longest Span Bridges in America — Top Bridges by Maximum Span | BridgeReport.org',
+  title: 'Longest Span Bridges in America — Top Bridges by Maximum Span',
   description:
     'Explore the bridges with the longest single spans in the United States. These engineering marvels include suspension bridges, cable-stayed bridges, and arch bridges.',
   alternates: {

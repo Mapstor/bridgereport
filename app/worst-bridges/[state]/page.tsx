@@ -4,8 +4,11 @@ import { getState, getAllStateAbbrs, formatNumber, formatPct } from '@/lib/data'
 import { getPoorPctColorClass } from '@/components/ConditionBadge';
 import ConditionBadge from '@/components/ConditionBadge';
 import Breadcrumbs, { BreadcrumbJsonLd } from '@/components/Breadcrumbs';
+import ExpandableSection from '@/components/ExpandableSection';
 import DataSourceFooter from '@/components/DataSourceFooter';
 import type { Metadata } from 'next';
+
+const SSR_VISIBLE_COUNT = 50;
 
 // Generate static params for all states
 export async function generateStaticParams() {
@@ -34,7 +37,7 @@ export async function generateMetadata({
   const description = `View the bridges with the lowest condition ratings in ${stateData.stateName}. ${formatNumber(stateData.poor)} bridges (${formatPct(stateData.poorPct)}) are in poor condition.`;
 
   return {
-    title: `${title} | BridgeReport.org`,
+    title,
     description,
     alternates: {
       canonical: `https://www.bridgereport.org/worst-bridges/${state.toLowerCase()}`,
@@ -137,7 +140,7 @@ export default async function WorstBridgesStatePage({
               <p className="text-slate-400 text-sm">Poor Bridges</p>
             </div>
             <div className="bg-slate-800 rounded-lg p-4">
-              <p className="text-3xl font-bold">{worstBridges.length}</p>
+              <p className="text-3xl font-bold">{formatNumber(worstBridges.length)}</p>
               <p className="text-slate-400 text-sm">Listed Below</p>
             </div>
           </div>
@@ -225,61 +228,73 @@ export default async function WorstBridgesStatePage({
         {/* Worst Bridges Table */}
         <section className="bg-white rounded-xl border border-slate-200 p-6 mb-12">
           <h2 className="text-xl font-semibold text-slate-900 mb-4">
-            Lowest Rated Bridges in {stateData.stateName}
+            {worstBridges.length > 0
+              ? `All ${formatNumber(worstBridges.length)} Lowest Rated Bridges in ${stateData.stateName}`
+              : `Lowest Rated Bridges in ${stateData.stateName}`}
           </h2>
+          <p className="text-slate-600 text-sm mb-4">
+            Bridges rated 0-4 on the federal condition scale, sorted by lowest rating first.
+            {worstBridges.length > SSR_VISIBLE_COUNT && ` Showing first ${SSR_VISIBLE_COUNT} — click below to see all ${formatNumber(worstBridges.length)}.`}
+          </p>
 
           {worstBridges.length === 0 ? (
             <p className="text-slate-600">
               No bridges with poor condition ratings found in {stateData.stateName}.
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50">
-                    <th className="py-3 px-4 text-left font-medium text-slate-600 w-16">Rank</th>
-                    <th className="py-3 px-4 text-left font-medium text-slate-600">Bridge</th>
-                    <th className="py-3 px-4 text-right font-medium text-slate-600">Rating</th>
-                    <th className="py-3 px-4 text-right font-medium text-slate-600">Year Built</th>
-                    <th className="py-3 px-4 text-center font-medium text-slate-600">Condition</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {worstBridges.map((bridge, idx) => {
-                    const bridgeSlug = bridge.id;
-                    const bridgeName = bridge.facilityCarried || 'Unknown Road';
-                    const over = bridge.featuresIntersected || 'Unknown';
+            <ExpandableSection
+              visibleCount={SSR_VISIBLE_COUNT}
+              totalCount={worstBridges.length}
+              label="bridges"
+            >
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-200 bg-slate-50">
+                      <th className="py-3 px-4 text-left font-medium text-slate-600 w-16">Rank</th>
+                      <th className="py-3 px-4 text-left font-medium text-slate-600">Bridge</th>
+                      <th className="py-3 px-4 text-right font-medium text-slate-600">Rating</th>
+                      <th className="py-3 px-4 text-right font-medium text-slate-600">Year Built</th>
+                      <th className="py-3 px-4 text-center font-medium text-slate-600">Condition</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {worstBridges.map((bridge, idx) => {
+                      const bridgeSlug = bridge.id;
+                      const bridgeName = bridge.facilityCarried || 'Unknown Road';
+                      const over = bridge.featuresIntersected || 'Unknown';
 
-                    return (
-                      <tr key={bridge.id} className="border-b border-slate-100 hover:bg-slate-50">
-                        <td className="py-3 px-4 font-mono text-slate-500">#{idx + 1}</td>
-                        <td className="py-3 px-4">
-                          <Link
-                            href={`/bridge/${state.toLowerCase()}/${bridgeSlug}`}
-                            className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
-                          >
-                            {bridgeName}
-                          </Link>
-                          <p className="text-xs text-slate-500 mt-0.5">over {over}</p>
-                          <p className="text-xs text-slate-400">{bridge.location}</p>
-                        </td>
-                        <td className="py-3 px-4 text-right">
-                          <span className="font-mono font-bold text-red-600">
-                            {bridge.lowestRating ?? '—'}
-                          </span>
-                        </td>
-                        <td className="py-3 px-4 text-right text-slate-600">
-                          {bridge.yearBuilt || '—'}
-                        </td>
-                        <td className="py-3 px-4 text-center">
-                          <ConditionBadge condition={bridge.conditionCategory} />
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
+                      return (
+                        <tr key={bridge.id} className="border-b border-slate-100 hover:bg-slate-50">
+                          <td className="py-3 px-4 font-mono text-slate-500">#{idx + 1}</td>
+                          <td className="py-3 px-4">
+                            <Link
+                              href={`/bridge/${state.toLowerCase()}/${bridgeSlug}`}
+                              className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
+                            >
+                              {bridgeName}
+                            </Link>
+                            <p className="text-xs text-slate-500 mt-0.5">over {over}</p>
+                            <p className="text-xs text-slate-400">{bridge.location}</p>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <span className="font-mono font-bold text-red-600">
+                              {bridge.lowestRating ?? '—'}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-right text-slate-600">
+                            {bridge.yearBuilt || '—'}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <ConditionBadge condition={bridge.conditionCategory} />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </ExpandableSection>
           )}
         </section>
 

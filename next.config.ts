@@ -11,6 +11,19 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: process.env.SKIP_LINT === 'true',
   },
 
+  // 301 redirect bare domain → www (safety net — Vercel handles this at edge,
+  // but this catches any requests that slip through)
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [{ type: 'host', value: 'bridgereport.org' }],
+        destination: 'https://www.bridgereport.org/:path*',
+        permanent: true,
+      },
+    ];
+  },
+
   // Caching headers for optimal performance
   async headers() {
     return [

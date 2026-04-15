@@ -20,7 +20,7 @@ const RankingTable = dynamicImport(() => import('@/components/RankingTable'), {
 });
 
 export const metadata: Metadata = {
-  title: 'Longest Bridges in America — Top 500 by Total Length | BridgeReport.org',
+  title: 'Longest Bridges in America — Top 500 by Total Length',
   description:
     'Explore the 500 longest highway bridges in the United States, ranked by total length. Includes Lake Pontchartrain Causeway, Manchac Swamp Bridge, and more.',
   alternates: {

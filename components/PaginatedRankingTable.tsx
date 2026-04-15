@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { formatNumber } from '@/lib/format';
 import ConditionBadge from './ConditionBadge';
@@ -81,6 +81,7 @@ export default function PaginatedRankingTable({
   const [searchInput, setSearchInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const hasInitialData = useRef(initialBridges.length > 0);
 
   const fetchBridges = useCallback(async (pageNum: number, searchQuery: string) => {
     setLoading(true);
@@ -106,8 +107,12 @@ export default function PaginatedRankingTable({
     }
   }, [rankingType]);
 
-  // Fetch when page or search changes
+  // Fetch when page or search changes — skip initial mount if SSR data was provided
   useEffect(() => {
+    if (hasInitialData.current && page === 0 && !search) {
+      hasInitialData.current = false;
+      return;
+    }
     fetchBridges(page, search);
   }, [page, search, fetchBridges]);
 

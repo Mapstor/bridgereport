@@ -10,7 +10,7 @@ import type { Metadata } from 'next';
 import type { ConditionCategory } from '@/types';
 
 export const metadata: Metadata = {
-  title: 'Covered Bridges in America — 400+ Historic Wooden Bridges by State | BridgeReport.org',
+  title: 'Covered Bridges in America — 400+ Historic Wooden Bridges by State',
   description:
     'Explore 400+ covered bridges in America from the National Bridge Inventory. Find covered bridges by state, see condition ratings, and discover bridges dating to the 1820s.',
   alternates: {

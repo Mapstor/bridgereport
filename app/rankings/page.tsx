@@ -7,7 +7,7 @@ import { BreadcrumbJsonLd } from '@/components/Breadcrumbs';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'State Bridge Rankings — Worst to Best by Condition | BridgeReport.org',
+  title: 'State Bridge Rankings — Worst to Best by Condition',
   description:
     'Compare bridge conditions across all 50 states, DC, and US territories. See which states have the most structurally deficient bridges ranked by percentage in poor condition.',
   alternates: {

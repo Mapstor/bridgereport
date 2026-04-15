@@ -17,7 +17,7 @@ const ConditionPieChart = dynamic(() => import('@/components/ConditionPieChart')
 });
 
 export const metadata: Metadata = {
-  title: 'US Bridge Conditions — 623,218 Bridges Rated | BridgeReport.org',
+  title: 'US Bridge Conditions — 623,218 Bridges Rated',
   description:
     'Explore condition data for all 623,218 US highway bridges. Find bridge ratings, deficiency status, and infrastructure reports by state, county, or location.',
   alternates: {

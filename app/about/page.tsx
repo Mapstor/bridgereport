@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'About BridgeReport.org - Our Mission, Methodology & Team',
+  title: 'About BridgeReport.org — Our Mission, Methodology & Team',
   description: 'Learn about BridgeReport.org, our mission to make bridge infrastructure data accessible, our data methodology, and the team of infrastructure enthusiasts behind the project.',
   alternates: {
     canonical: 'https://www.bridgereport.org/about',

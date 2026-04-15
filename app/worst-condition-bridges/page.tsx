@@ -8,7 +8,7 @@ import PaginatedRankingTable from '@/components/PaginatedRankingTable';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Worst Condition Bridges in America — Ratings 0-3 | BridgeReport.org',
+  title: 'Worst Condition Bridges in America — Ratings 0-3',
   description:
     'Search bridges rated 0-3 on the federal condition scale. Find failed, critical, and serious condition bridges by state with full inspection data.',
   alternates: {
@@ -43,6 +43,9 @@ export default function WorstConditionBridgesPage() {
 
   // Load limited bridges for the map (first 500)
   const { bridges: mapBridges } = getBridgeRankingPaginated('worst_condition', 500);
+
+  // Load first page of bridges for SSR (so Google sees populated table)
+  const { bridges: initialBridges, total: initialTotal } = getBridgeRankingPaginated('worst_condition', 50);
 
   const breadcrumbItems = [
     { label: 'Home', href: '/' },
@@ -210,6 +213,8 @@ export default function WorstConditionBridgesPage() {
             formatType="rating"
             showDescription={true}
             descriptionType="condition"
+            initialBridges={initialBridges}
+            initialTotal={initialTotal}
           />
         </section>
 

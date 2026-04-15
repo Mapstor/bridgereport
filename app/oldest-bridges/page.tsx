@@ -19,7 +19,7 @@ const RankingTable = dynamicImport(() => import('@/components/RankingTable'), {
 });
 
 export const metadata: Metadata = {
-  title: 'Oldest Bridges in America — Historic Bridges by Year Built | BridgeReport.org',
+  title: 'Oldest Bridges in America — Historic Bridges by Year Built',
   description:
     'Discover the oldest highway bridges still in use in the United States. Many date back to the 1800s and feature historic masonry and iron construction.',
   alternates: {

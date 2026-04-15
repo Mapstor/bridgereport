@@ -653,11 +653,11 @@ def main():
             })
         stats["topCounties"] = county_list
         
-        # Top 10 worst bridges in state
-        worst = top_bridges(bridges, "lowestRating", n=10, reverse=False,
+        # All poor-condition bridges in state (rating <= 4), sorted by worst first
+        worst = top_bridges(bridges, "lowestRating", n=10000, reverse=False,
                            filter_fn=lambda b: b["lowestRating"] is not None and b["lowestRating"] <= 4)
         stats["worstBridges"] = worst
-        
+
         # Top 10 most trafficked
         most_traffic = top_bridges(bridges, "adt", n=10, reverse=True)
         stats["mostTrafficked"] = most_traffic
