@@ -101,7 +101,10 @@ export default async function WorstBridgesStatePage({
     { label: 'Worst Bridges' },
   ];
 
-  const worstBridges = stateData.worstBridges || [];
+  const allWorstBridges = stateData.worstBridges || [];
+  // Cap rendered rows to keep HTML size reasonable (full data stays in state JSON for getMinimalBridge)
+  const MAX_RENDERED = 200;
+  const worstBridges = allWorstBridges.slice(0, MAX_RENDERED);
 
   return (
     <>
@@ -140,8 +143,8 @@ export default async function WorstBridgesStatePage({
               <p className="text-slate-400 text-sm">Poor Bridges</p>
             </div>
             <div className="bg-slate-800 rounded-lg p-4">
-              <p className="text-3xl font-bold">{formatNumber(worstBridges.length)}</p>
-              <p className="text-slate-400 text-sm">Listed Below</p>
+              <p className="text-3xl font-bold">{formatNumber(allWorstBridges.length)}</p>
+              <p className="text-slate-400 text-sm">Rating 0-4</p>
             </div>
           </div>
         </div>
@@ -228,13 +231,14 @@ export default async function WorstBridgesStatePage({
         {/* Worst Bridges Table */}
         <section className="bg-white rounded-xl border border-slate-200 p-6 mb-12">
           <h2 className="text-xl font-semibold text-slate-900 mb-4">
-            {worstBridges.length > 0
-              ? `All ${formatNumber(worstBridges.length)} Lowest Rated Bridges in ${stateData.stateName}`
+            {allWorstBridges.length > 0
+              ? `Lowest Rated Bridges in ${stateData.stateName}`
               : `Lowest Rated Bridges in ${stateData.stateName}`}
           </h2>
           <p className="text-slate-600 text-sm mb-4">
-            Bridges rated 0-4 on the federal condition scale, sorted by lowest rating first.
-            {worstBridges.length > SSR_VISIBLE_COUNT && ` Showing first ${SSR_VISIBLE_COUNT} — click below to see all ${formatNumber(worstBridges.length)}.`}
+            {formatNumber(allWorstBridges.length)} bridges rated 0-4 on the federal condition scale, sorted by lowest rating first.
+            {worstBridges.length > SSR_VISIBLE_COUNT && ` Showing first ${SSR_VISIBLE_COUNT} — click below to expand.`}
+            {allWorstBridges.length > MAX_RENDERED && ` Displaying top ${MAX_RENDERED} of ${formatNumber(allWorstBridges.length)}.`}
           </p>
 
           {worstBridges.length === 0 ? (
