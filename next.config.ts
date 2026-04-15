@@ -88,6 +88,12 @@ const nextConfig: NextConfig = {
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
   },
 
+  // Ensure data files are included in all serverless function bundles
+  // (needed for getMinimalBridge() which reads state JSONs from bridge detail routes)
+  outputFileTracingIncludes: {
+    '/bridge/[state]/[id]': ['./data/states/**/*.json', './data/rankings/**/*.json'],
+  },
+
   // Enable experimental features for better performance
   experimental: {
     optimizePackageImports: ['recharts', 'lucide-react'],
