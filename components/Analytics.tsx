@@ -2,10 +2,9 @@
 
 import Script from 'next/script';
 
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-X717PR12L8';
 
 export default function Analytics() {
-  // Don't render if no GA ID is configured
   if (!GA_MEASUREMENT_ID) {
     return null;
   }
