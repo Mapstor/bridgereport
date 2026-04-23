@@ -117,12 +117,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <Analytics />
         <OrganizationJsonLd />
         <WebSiteJsonLd />
       </head>
       <body className="min-h-screen flex flex-col">
         <AdProvider>
-          <Analytics />
           <Header />
           <main className="flex-grow">
             {children}
