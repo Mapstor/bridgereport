@@ -1,4 +1,4 @@
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-X717PR12L8';
+const GA_MEASUREMENT_ID = (process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-X717PR12L8').trim();
 
 export default function Analytics() {
   if (!GA_MEASUREMENT_ID) {
