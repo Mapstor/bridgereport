@@ -14,7 +14,13 @@ const RatingDistributionChart = dynamicImport(() => import('@/components/RatingD
   loading: () => <div className="h-[140px] bg-slate-50 rounded animate-pulse" />,
 });
 
-export const dynamic = 'force-dynamic';
+// ISR — state data refreshes annually with NBI release. 24h revalidate is plenty.
+export const revalidate = 86400;
+
+export async function generateStaticParams() {
+  const { getAllStateAbbrs } = await import('@/lib/data');
+  return getAllStateAbbrs().map((abbr) => ({ abbr: abbr.toLowerCase() }));
+}
 
 // Dynamic metadata
 export async function generateMetadata({
@@ -337,7 +343,7 @@ export default async function StatePage({ params }: { params: Promise<{ abbr: st
                         <tr key={b.id} className={rowBg}>
                           <td className="px-3 py-2.5 text-slate-400 font-semibold">{i + 1}</td>
                           <td className="px-3 py-2.5">
-                            <Link href={`/bridge/${b.id}`} className="font-semibold text-slate-900 hover:text-blue-600">
+                            <Link href={`/bridge/${state.state.toLowerCase()}/${b.id}`} className="font-semibold text-slate-900 hover:text-blue-600">
                               {b.facilityCarried}
                             </Link>
                             <div className="text-[11px] text-slate-400">over {b.featuresIntersected}</div>

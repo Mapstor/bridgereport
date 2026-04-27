@@ -12,11 +12,8 @@ export async function GET() {
 User-agent: *
 Allow: /
 
-# Main Sitemap
-Sitemap: https://www.bridgereport.org/sitemap.xml
-
-# Crawl-delay for polite crawling
-Crawl-delay: 1
+# Sitemap index — fans out to states, cities, rankings, and per-state bridge sitemaps
+Sitemap: https://www.bridgereport.org/sitemap-index.xml
 
 # Block non-content paths
 Disallow: /api/

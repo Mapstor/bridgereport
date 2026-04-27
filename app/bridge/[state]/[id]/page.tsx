@@ -72,7 +72,7 @@ interface BreadcrumbItem {
 }
 
 // Combined JSON-LD with @graph for Bridge + FAQ + BreadcrumbList
-function BridgePageJsonLd({ bridge, countyName, breadcrumbItems }: { bridge: Bridge; countyName: string | null; breadcrumbItems: BreadcrumbItem[] }) {
+function BridgePageJsonLd({ bridge, countyName, breadcrumbItems, state }: { bridge: Bridge; countyName: string | null; breadcrumbItems: BreadcrumbItem[]; state: string }) {
   const bridgeName = `${bridge.facilityCarried || 'Bridge'} over ${bridge.featuresIntersected || 'Unknown'}`;
   const bridgeNameSimple = bridge.facilityCarried || 'This bridge';
   const currentYear = new Date().getFullYear();
@@ -120,10 +120,10 @@ function BridgePageJsonLd({ bridge, countyName, breadcrumbItems }: { bridge: Bri
       // Bridge schema
       {
         '@type': 'Bridge',
-        '@id': `https://www.bridgereport.org/bridge/${bridge.stateFips?.toLowerCase() || 'us'}/${bridge.id}`,
+        '@id': `https://www.bridgereport.org/bridge/${state.toLowerCase()}/${bridge.id}`,
         name: bridgeName,
-        description: `${bridgeName} in ${countyName ? `${countyName}, ` : ''}${bridge.stateName}. ${bridge.materialName || ''} ${bridge.designTypeName || ''} structure${bridge.yearBuilt ? ` built in ${bridge.yearBuilt}` : ''}. Current condition: ${bridge.conditionCategory || 'unknown'}.${bridge.adt ? ` Carries ${formatNumber(bridge.adt)} vehicles daily.` : ''}`,
-        url: `https://www.bridgereport.org/bridge/${bridge.stateFips?.toLowerCase() || 'us'}/${bridge.id}`,
+        description: `${bridgeName} in ${countyName && countyName !== bridge.stateName ? `${countyName}, ` : ''}${bridge.stateName}. ${bridge.materialName || ''} ${bridge.designTypeName || ''} structure${bridge.yearBuilt ? ` built in ${bridge.yearBuilt}` : ''}. Current condition: ${bridge.conditionCategory || 'unknown'}.${bridge.adt ? ` Carries ${formatNumber(bridge.adt)} vehicles daily.` : ''}`,
+        url: `https://www.bridgereport.org/bridge/${state.toLowerCase()}/${bridge.id}`,
         address: {
           '@type': 'PostalAddress',
           addressLocality: bridge.location || countyName || undefined,
@@ -461,7 +461,7 @@ export default async function BridgePage({
 
   return (
     <>
-      <BridgePageJsonLd bridge={bridge} countyName={countyName} breadcrumbItems={breadcrumbItems} />
+      <BridgePageJsonLd bridge={bridge} countyName={countyName} breadcrumbItems={breadcrumbItems} state={state} />
 
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">

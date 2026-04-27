@@ -14,7 +14,6 @@ export async function GET() {
   const sitemaps = [
     // Core sitemaps
     `${BASE_URL}/sitemap-states.xml`,
-    `${BASE_URL}/sitemap-counties.xml`,
     `${BASE_URL}/sitemap-cities.xml`,
     `${BASE_URL}/sitemap-rankings.xml`,
     // Per-state bridge sitemaps (one per state to stay under 50K limit)

@@ -89,9 +89,12 @@ const nextConfig: NextConfig = {
   },
 
   // Ensure data files are included in all serverless function bundles
-  // (needed for getMinimalBridge() which reads state JSONs from bridge detail routes)
+  // (needed for getMinimalBridge() which reads state JSONs from bridge detail routes,
+  // and for city pages which read place names + per-city bridge JSONs)
   outputFileTracingIncludes: {
     '/bridge/[state]/[id]': ['./data/states/**/*.json', './data/rankings/**/*.json'],
+    '/city/[state]/[slug]': ['./data/cities/**/*.json', './data/meta/**/*.json'],
+    '/sitemap-cities.xml': ['./data/cities/**/*.json', './data/meta/**/*.json'],
   },
 
   // Enable experimental features for better performance
