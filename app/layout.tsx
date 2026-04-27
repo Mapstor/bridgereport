@@ -63,42 +63,37 @@ export const metadata: Metadata = {
   },
 };
 
-// Organization schema with logo for structured data
-function OrganizationJsonLd() {
+// Site-wide Organization + WebSite schemas, linked via stable @id so per-page graphs
+// can reference them (e.g. `publisher: { '@id': 'https://www.bridgereport.org/#organization' }`)
+// instead of redeclaring them. Page-level graphs should add page-specific entities only
+// (Article, Dataset, Bridge, FAQPage, etc.) — not duplicate these two.
+function SiteWideJsonLd() {
   const structuredData = {
     '@context': 'https://schema.org',
-    '@type': 'Organization',
-    name: 'BridgeReport.org',
-    url: CANONICAL_DOMAIN,
-    logo: `${CANONICAL_DOMAIN}/icon.png`,
-    sameAs: [],
-    description: 'Explore bridge condition data for every highway bridge in America. Find bridge ratings, deficiency status, and infrastructure reports by state, county, or location.',
-  };
-
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-    />
-  );
-}
-
-// WebSite schema for search engines
-function WebSiteJsonLd() {
-  const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: 'BridgeReport.org',
-    url: CANONICAL_DOMAIN,
-    description: 'Explore bridge condition data for every highway bridge in America.',
-    publisher: {
-      '@type': 'Organization',
-      name: 'BridgeReport.org',
-      logo: {
-        '@type': 'ImageObject',
-        url: `${CANONICAL_DOMAIN}/icon.png`,
+    '@graph': [
+      {
+        '@type': 'Organization',
+        '@id': `${CANONICAL_DOMAIN}/#organization`,
+        name: 'BridgeReport.org',
+        url: CANONICAL_DOMAIN,
+        logo: {
+          '@type': 'ImageObject',
+          url: `${CANONICAL_DOMAIN}/icon.png`,
+          width: 512,
+          height: 512,
+        },
+        sameAs: [],
+        description: 'Explore bridge condition data for every highway bridge in America. Find bridge ratings, deficiency status, and infrastructure reports by state, county, or location.',
       },
-    },
+      {
+        '@type': 'WebSite',
+        '@id': `${CANONICAL_DOMAIN}/#website`,
+        url: CANONICAL_DOMAIN,
+        name: 'BridgeReport.org',
+        description: 'Explore bridge condition data for every highway bridge in America.',
+        publisher: { '@id': `${CANONICAL_DOMAIN}/#organization` },
+      },
+    ],
   };
 
   return (
@@ -118,8 +113,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <Analytics />
-        <OrganizationJsonLd />
-        <WebSiteJsonLd />
+        <SiteWideJsonLd />
       </head>
       <body className="min-h-screen flex flex-col">
         <AdProvider>

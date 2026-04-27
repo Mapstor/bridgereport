@@ -30,40 +30,15 @@ export const metadata: Metadata = {
 };
 
 function AboutJsonLd() {
-  const organizationSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'Organization',
-    '@id': 'https://www.bridgereport.org/#organization',
-    name: 'BridgeReport.org',
-    url: 'https://www.bridgereport.org',
-    logo: 'https://www.bridgereport.org/icon.png',
-    description: 'BridgeReport.org makes America\'s bridge infrastructure data accessible, understandable, and actionable for everyone. We provide comprehensive bridge condition data for over 623,000 highway bridges.',
-    foundingDate: '2024',
-    email: 'info@bridgereport.org',
-    contactPoint: {
-      '@type': 'ContactPoint',
-      email: 'info@bridgereport.org',
-      contactType: 'customer service',
-    },
-    sameAs: [],
-  };
-
+  // Organization + WebSite are emitted site-wide via SiteWideJsonLd in app/layout.tsx.
+  // This page contributes a BreadcrumbList + AboutPage, both linking to the site-wide
+  // entities by @id rather than redeclaring them.
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'Home',
-        item: 'https://www.bridgereport.org',
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'About',
-        item: 'https://www.bridgereport.org/about',
-      },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.bridgereport.org' },
+      { '@type': 'ListItem', position: 2, name: 'About', item: 'https://www.bridgereport.org/about' },
     ],
   };
 
@@ -74,22 +49,12 @@ function AboutJsonLd() {
     name: 'About BridgeReport.org',
     description: 'Learn about BridgeReport.org, our mission to make bridge infrastructure data accessible, our data methodology, and the team of infrastructure enthusiasts behind the project.',
     url: 'https://www.bridgereport.org/about',
-    mainEntity: {
-      '@id': 'https://www.bridgereport.org/#organization',
-    },
-    isPartOf: {
-      '@type': 'WebSite',
-      name: 'BridgeReport.org',
-      url: 'https://www.bridgereport.org',
-    },
+    mainEntity: { '@id': 'https://www.bridgereport.org/#organization' },
+    isPartOf: { '@id': 'https://www.bridgereport.org/#website' },
   };
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}

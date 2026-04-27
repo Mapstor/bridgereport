@@ -40,8 +40,8 @@ export default function RankingJsonLd({
   // Get today's date in ISO format
   const today = new Date().toISOString().split('T')[0];
 
-  // Build top 10 list items
-  const top10Items = items.slice(0, 10).map((item, index) => {
+  // Build up to 100 list items (Google honors longer lists; 10 was leaving rich-result coverage on the table)
+  const listItems = items.slice(0, 100).map((item, index) => {
     const bridgeId = item.id || item.structureNumber || '';
     const bridgeName = item.facilityCarried || item.featuresIntersected || 'Bridge';
     const bridgeUrl = `https://www.bridgereport.org/bridge/${item.state.toLowerCase()}/${encodeURIComponent(bridgeId)}`;
@@ -95,7 +95,7 @@ export default function RankingJsonLd({
         description: listDescription,
         numberOfItems: items.length,
         itemListOrder,
-        itemListElement: top10Items,
+        itemListElement: listItems,
       },
       ...(breadcrumbList ? [breadcrumbList] : []),
     ],

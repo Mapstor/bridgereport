@@ -37,35 +37,23 @@ export const metadata: Metadata = {
 };
 
 // JSON-LD structured data
-function JsonLd() {
+function JsonLd({ states }: { states: Array<{ state: string; stateName: string }> }) {
+  const itemListElement = states.map((s, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: s.stateName,
+    url: `https://www.bridgereport.org/state/${s.state.toLowerCase()}`,
+  }));
+
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: 'US State Bridge Condition Rankings',
     description: 'All US states and territories ranked by percentage of bridges in poor condition',
     url: 'https://www.bridgereport.org/rankings',
-    numberOfItems: 54,
+    numberOfItems: itemListElement.length,
     itemListOrder: 'https://schema.org/ItemListOrderDescending',
-    itemListElement: [
-      {
-        '@type': 'ListItem',
-        position: 1,
-        name: 'U.S. Virgin Islands',
-        url: 'https://www.bridgereport.org/state/vi',
-      },
-      {
-        '@type': 'ListItem',
-        position: 2,
-        name: 'Iowa',
-        url: 'https://www.bridgereport.org/state/ia',
-      },
-      {
-        '@type': 'ListItem',
-        position: 3,
-        name: 'West Virginia',
-        url: 'https://www.bridgereport.org/state/wv',
-      },
-    ],
+    itemListElement,
   };
 
   return (
@@ -100,7 +88,7 @@ export default function RankingsPage() {
   return (
     <>
       <BreadcrumbJsonLd items={breadcrumbItems} />
-      <JsonLd />
+      <JsonLd states={worstStates} />
 
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">

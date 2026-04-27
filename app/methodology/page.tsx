@@ -56,42 +56,18 @@ function MethodologyJsonLd() {
     headline: 'Data Methodology - BridgeReport.org',
     description: 'Detailed explanation of BridgeReport.org data sources, processing methodology, condition ratings, and how we present bridge infrastructure information.',
     url: 'https://www.bridgereport.org/methodology',
-    author: {
-      '@type': 'Organization',
-      name: 'BridgeReport.org',
-      url: 'https://www.bridgereport.org',
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'BridgeReport.org',
-      logo: {
-        '@type': 'ImageObject',
-        url: 'https://www.bridgereport.org/icon.png',
-      },
-    },
+    author: { '@id': 'https://www.bridgereport.org/#organization' },
+    publisher: { '@id': 'https://www.bridgereport.org/#organization' },
     mainEntityOfPage: {
       '@type': 'WebPage',
       '@id': 'https://www.bridgereport.org/methodology',
     },
     about: [
-      {
-        '@type': 'Thing',
-        name: 'National Bridge Inventory',
-      },
-      {
-        '@type': 'Thing',
-        name: 'Bridge Inspection',
-      },
-      {
-        '@type': 'Thing',
-        name: 'Infrastructure Data',
-      },
+      { '@type': 'Thing', name: 'National Bridge Inventory' },
+      { '@type': 'Thing', name: 'Bridge Inspection' },
+      { '@type': 'Thing', name: 'Infrastructure Data' },
     ],
-    isPartOf: {
-      '@type': 'WebSite',
-      name: 'BridgeReport.org',
-      url: 'https://www.bridgereport.org',
-    },
+    isPartOf: { '@id': 'https://www.bridgereport.org/#website' },
   };
 
   const datasetSchema = {

@@ -65,14 +65,33 @@ export async function generateMetadata({
   };
 }
 
-function ListJsonLd({ stateName, count }: { stateName: string; count: number }) {
+function ListJsonLd({
+  stateName,
+  stateAbbr,
+  bridges,
+}: {
+  stateName: string;
+  stateAbbr: string;
+  bridges: Array<{ id: string; facilityCarried?: string | null; featuresIntersected?: string | null }>;
+}) {
+  const stateLower = stateAbbr.toLowerCase();
+  const itemListElement = bridges.slice(0, 100).map((b, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: b.facilityCarried
+      ? (b.featuresIntersected ? `${b.facilityCarried} over ${b.featuresIntersected}` : b.facilityCarried)
+      : 'Bridge',
+    url: `https://www.bridgereport.org/bridge/${stateLower}/${b.id}`,
+  }));
+
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: `Worst Bridges in ${stateName}`,
-    description: `Top ${count} bridges with the lowest condition ratings in ${stateName}`,
-    numberOfItems: count,
-    itemListOrder: 'Ascending',
+    description: `Top ${itemListElement.length} bridges with the lowest condition ratings in ${stateName}`,
+    numberOfItems: itemListElement.length,
+    itemListOrder: 'https://schema.org/ItemListOrderAscending',
+    itemListElement,
   };
 
   return (
@@ -109,7 +128,7 @@ export default async function WorstBridgesStatePage({
   return (
     <>
       <BreadcrumbJsonLd items={breadcrumbItems} />
-      <ListJsonLd stateName={stateData.stateName} count={worstBridges.length} />
+      <ListJsonLd stateName={stateData.stateName} stateAbbr={stateData.state} bridges={worstBridges} />
 
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">

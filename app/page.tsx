@@ -46,50 +46,13 @@ export const metadata: Metadata = {
   },
 };
 
-// JSON-LD structured data
+// JSON-LD structured data — Organization + WebSite are emitted by the root layout
+// (via SiteWideJsonLd with stable @id), so the homepage only adds the Dataset entity
+// and a SearchAction tied to the site-wide WebSite via @id reference.
 function JsonLd() {
   const structuredData = {
     '@context': 'https://schema.org',
     '@graph': [
-      {
-        '@type': 'WebSite',
-        '@id': 'https://www.bridgereport.org/#website',
-        url: 'https://www.bridgereport.org',
-        name: 'BridgeReport.org',
-        description: 'Comprehensive bridge condition data for America\'s highway bridges',
-        publisher: {
-          '@id': 'https://www.bridgereport.org/#organization',
-        },
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: {
-            '@type': 'EntryPoint',
-            urlTemplate: 'https://www.bridgereport.org/bridges-near-me?q={search_term_string}',
-          },
-          'query-input': 'required name=search_term_string',
-        },
-      },
-      {
-        '@type': 'Organization',
-        '@id': 'https://www.bridgereport.org/#organization',
-        name: 'BridgeReport.org',
-        url: 'https://www.bridgereport.org',
-        logo: {
-          '@type': 'ImageObject',
-          url: 'https://www.bridgereport.org/icon.png',
-          width: 512,
-          height: 512,
-        },
-        description: 'Free public access to federal bridge inspection data. Transforming the National Bridge Inventory into searchable reports for citizens, journalists, researchers, and officials.',
-        foundingDate: '2024',
-        knowsAbout: [
-          'Highway bridges',
-          'Bridge inspection',
-          'Infrastructure',
-          'National Bridge Inventory',
-          'Structural engineering',
-        ],
-      },
       {
         '@type': 'Dataset',
         '@id': 'https://www.bridgereport.org/#dataset',
@@ -114,6 +77,18 @@ function JsonLd() {
           'Year built',
           'Construction materials',
         ],
+      },
+      {
+        '@type': 'WebSite',
+        '@id': 'https://www.bridgereport.org/#website',
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: 'https://www.bridgereport.org/bridges-near-me?q={search_term_string}',
+          },
+          'query-input': 'required name=search_term_string',
+        },
       },
     ],
   };
