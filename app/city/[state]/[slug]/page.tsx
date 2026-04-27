@@ -25,8 +25,9 @@ const CountyBridgeTable = dynamicImport(() => import('@/components/CountyBridgeT
   loading: () => <TableSkeleton />,
 });
 
-// Use dynamic rendering to avoid memory issues during build
-export const dynamic = 'force-dynamic';
+// ISR — city data refreshes with NBI release. 24h revalidate.
+// We don't pre-generate all 8K city paths at build time; first hit triggers SSR + caches.
+export const revalidate = 86400;
 
 // Chart loading skeleton
 function ChartSkeleton({ height }: { height: number }) {

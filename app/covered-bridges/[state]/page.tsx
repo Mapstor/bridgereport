@@ -13,8 +13,13 @@ import DataSourceFooter from '@/components/DataSourceFooter';
 import BridgeMap from '@/components/BridgeMap';
 import type { Metadata } from 'next';
 
-// Use dynamic rendering
-export const dynamic = 'force-dynamic';
+// ISR — covered bridge data refreshes with NBI release.
+export const revalidate = 86400;
+
+export async function generateStaticParams() {
+  const { getAllStateAbbrs } = await import('@/lib/data');
+  return getAllStateAbbrs().map((state) => ({ state: state.toLowerCase() }));
+}
 
 // Generate metadata dynamically
 export async function generateMetadata({
@@ -74,18 +79,30 @@ export async function generateMetadata({
 // JSON-LD
 function StateJsonLd({
   stateName,
-  count,
+  stateAbbr,
+  bridges,
 }: {
   stateName: string;
-  count: number;
+  stateAbbr: string;
+  bridges: Array<{ id: string; facilityCarried: string | null; featuresIntersected: string | null }>;
 }) {
+  const stateLower = stateAbbr.toLowerCase();
+  const itemListElement = bridges.slice(0, 100).map((b, i) => ({
+    '@type': 'ListItem',
+    position: i + 1,
+    name: b.facilityCarried
+      ? (b.featuresIntersected ? `${b.facilityCarried} over ${b.featuresIntersected}` : b.facilityCarried)
+      : 'Covered Bridge',
+    url: `https://www.bridgereport.org/bridge/${stateLower}/${b.id}`,
+  }));
+
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
     name: `Covered Bridges in ${stateName}`,
-    description: `A list of ${count} covered bridges in ${stateName}`,
-    numberOfItems: count,
-    itemListElement: [],
+    description: `Covered bridges in ${stateName} from the National Bridge Inventory`,
+    numberOfItems: itemListElement.length,
+    itemListElement,
   };
 
   return (
@@ -175,7 +192,7 @@ export default async function StateCoveredBridgesPage({
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <BreadcrumbJsonLd items={breadcrumbs} />
-      <StateJsonLd stateName={stateName} count={bridges.length} />
+      <StateJsonLd stateName={stateName} stateAbbr={stateAbbr} bridges={bridges} />
 
       <Breadcrumbs items={breadcrumbs} />
 

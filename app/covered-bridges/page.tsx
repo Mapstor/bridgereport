@@ -39,8 +39,8 @@ export const metadata: Metadata = {
   },
 };
 
-// Use dynamic rendering to avoid memory issues during build
-export const dynamic = 'force-dynamic';
+// ISR — covered bridge data refreshes with NBI release.
+export const revalidate = 86400;
 
 // Use fixed year to avoid hydration mismatch
 const CURRENT_YEAR = 2026;
