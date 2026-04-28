@@ -71,8 +71,11 @@ interface BreadcrumbItem {
   href?: string;
 }
 
-// Combined JSON-LD with @graph for Bridge + FAQ + BreadcrumbList
-function BridgePageJsonLd({ bridge, countyName, breadcrumbItems, state }: { bridge: Bridge; countyName: string | null; breadcrumbItems: BreadcrumbItem[]; state: string }) {
+// Combined JSON-LD with @graph for Bridge + FAQ + BreadcrumbList.
+// `state` and `id` come from URL params and must be used in schema URLs so that
+// schema @id/url match the canonical (the page may be reachable via either the
+// prefixed form "CA-54C0411" or unprefixed "54C0411").
+function BridgePageJsonLd({ bridge, countyName, breadcrumbItems, state, id }: { bridge: Bridge; countyName: string | null; breadcrumbItems: BreadcrumbItem[]; state: string; id: string }) {
   const bridgeName = `${bridge.facilityCarried || 'Bridge'} over ${bridge.featuresIntersected || 'Unknown'}`;
   const bridgeNameSimple = bridge.facilityCarried || 'This bridge';
   const currentYear = new Date().getFullYear();
@@ -120,10 +123,10 @@ function BridgePageJsonLd({ bridge, countyName, breadcrumbItems, state }: { brid
       // Bridge schema
       {
         '@type': 'Bridge',
-        '@id': `https://www.bridgereport.org/bridge/${state.toLowerCase()}/${bridge.id}`,
+        '@id': `https://www.bridgereport.org/bridge/${state.toLowerCase()}/${id}`,
         name: bridgeName,
         description: `${bridgeName} in ${countyName && countyName !== bridge.stateName ? `${countyName}, ` : ''}${bridge.stateName}. ${bridge.materialName || ''} ${bridge.designTypeName || ''} structure${bridge.yearBuilt ? ` built in ${bridge.yearBuilt}` : ''}. Current condition: ${bridge.conditionCategory || 'unknown'}.${bridge.adt ? ` Carries ${formatNumber(bridge.adt)} vehicles daily.` : ''}`,
-        url: `https://www.bridgereport.org/bridge/${state.toLowerCase()}/${bridge.id}`,
+        url: `https://www.bridgereport.org/bridge/${state.toLowerCase()}/${id}`,
         address: {
           '@type': 'PostalAddress',
           addressLocality: bridge.location || countyName || undefined,
@@ -461,7 +464,7 @@ export default async function BridgePage({
 
   return (
     <>
-      <BridgePageJsonLd bridge={bridge} countyName={countyName} breadcrumbItems={breadcrumbItems} state={state} />
+      <BridgePageJsonLd bridge={bridge} countyName={countyName} breadcrumbItems={breadcrumbItems} state={state} id={id} />
 
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">
