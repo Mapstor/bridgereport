@@ -4,7 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
+    "prebuild": "node scripts/build-cities-index.js",
     "build": "NODE_OPTIONS='--max-old-space-size=8192' next build",
+    "prebuild:vercel": "node scripts/build-cities-index.js",
     "build:vercel": "next build",
     "start": "next start",
     "lint": "next lint"

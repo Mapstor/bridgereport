@@ -169,29 +169,6 @@ export default async function CityPage({
   params: Promise<{ state: string; slug: string }>;
 }) {
   const { state, slug } = await params;
-
-  // Diagnostic — remove after fix verified
-  if (process.env.NODE_ENV === 'production') {
-    const fs = await import('fs');
-    const path = await import('path');
-    const cwd = process.cwd();
-    const metaPath = path.join(cwd, 'data', 'meta', 'fips_places.json');
-    const cityDir = path.join(cwd, 'data', 'cities');
-    const stateDir = path.join(cwd, 'data', 'cities', state.toUpperCase());
-    console.error('[city-debug] cwd:', cwd);
-    console.error('[city-debug] meta exists:', fs.existsSync(metaPath));
-    console.error('[city-debug] cities/ exists:', fs.existsSync(cityDir));
-    console.error('[city-debug] cities/{state}/ exists:', fs.existsSync(stateDir));
-    if (fs.existsSync(cityDir)) {
-      try {
-        const states = fs.readdirSync(cityDir);
-        console.error('[city-debug] cities/ contents (first 5):', states.slice(0, 5));
-      } catch (e) {
-        console.error('[city-debug] readdir cities/ failed:', e);
-      }
-    }
-  }
-
   const fips = getCityFipsBySlug(state, slug);
 
   if (!fips) {

@@ -93,8 +93,11 @@ const nextConfig: NextConfig = {
   // and for city pages which read place names + per-city bridge JSONs)
   outputFileTracingIncludes: {
     '/bridge/[state]/[id]': ['./data/states/**/*.json', './data/rankings/**/*.json'],
-    '/city/[state]/[slug]': ['./data/cities/**/*.json', './data/meta/**/*.json'],
-    '/sitemap-cities.xml': ['./data/cities/**/*.json', './data/meta/**/*.json'],
+    // Per-state city index (53 files) instead of per-city files (21K files) — 21K files
+    // exceeded Vercel's tracing capacity and silently dropped from the bundle. Built by
+    // scripts/build-cities-index.js as a prebuild step.
+    '/city/[state]/[slug]': ['./data/cities-index/**/*.json', './data/meta/**/*.json'],
+    '/sitemap-cities.xml': ['./data/cities-index/**/*.json', './data/meta/**/*.json'],
   },
 
   // Enable experimental features for better performance

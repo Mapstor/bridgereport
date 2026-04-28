@@ -98,58 +98,48 @@ function isValidCityName(name: string): boolean {
   return true;
 }
 
+// Per-state city index cache. Each entry is a state's full city map keyed by FIPS.
+// Built from data/cities-index/{state}.json (one file per state, ~1-9MB each — 53 files
+// total instead of 21K, which Vercel's outputFileTracing reliably bundles).
+const cityIndexCache: Record<string, Record<string, CitySummary> | null> = {};
+
+function loadCityIndex(state: string): Record<string, CitySummary> | null {
+  const normalized = state.toUpperCase();
+  if (normalized in cityIndexCache) return cityIndexCache[normalized];
+  const idx = readJson<Record<string, CitySummary>>(dataPath('cities-index', `${normalized}.json`));
+  cityIndexCache[normalized] = idx;
+  return idx;
+}
+
 /** Get a city's summary by state and place FIPS code */
 export function getCity(state: string, fips: string): CitySummary | null {
-  const normalized = state.toUpperCase();
-  // Pad place FIPS to 5 digits if needed
   const normalizedFips = fips.padStart(5, '0');
-  return readJson<CitySummary>(dataPath('cities', normalized, `${normalizedFips}.json`));
+  const idx = loadCityIndex(state);
+  return idx?.[normalizedFips] ?? null;
 }
 
 /** Get all city summaries for a state (excludes placeholder cities) */
 export function getCitiesForState(state: string): CitySummary[] {
   const normalized = state.toUpperCase();
-  const cityDir = dataPath('cities', normalized);
+  const idx = loadCityIndex(normalized);
+  if (!idx) return [];
 
-  if (!existsSync(cityDir)) {
-    return [];
-  }
-
-  // Load place names to filter out placeholders
   const names = readJson<Record<string, string>>(dataPath('meta', 'fips_places.json')) || {};
 
-  const files = readdirSync(cityDir).filter(f => f.endsWith('.json'));
-
   const cities: CitySummary[] = [];
-  for (const file of files) {
-    const fips = file.replace('.json', '');
-    const key = `${normalized}-${fips}`;
-    const cityName = names[key];
-
-    // Only include cities with valid names (not placeholders)
+  for (const fips of Object.keys(idx)) {
+    const cityName = names[`${normalized}-${fips}`];
     if (cityName && isValidCityName(cityName)) {
-      const city = readJson<CitySummary>(join(cityDir, file));
-      if (city) {
-        cities.push(city);
-      }
+      cities.push(idx[fips]);
     }
   }
-
-  return cities.sort((a, b) => b.total - a.total); // Sort by bridge count descending
+  return cities.sort((a, b) => b.total - a.total);
 }
 
 /** Get list of all place FIPS for a state */
 export function getCityFipsForState(state: string): string[] {
-  const normalized = state.toUpperCase();
-  const cityDir = dataPath('cities', normalized);
-
-  if (!existsSync(cityDir)) {
-    return [];
-  }
-
-  return readdirSync(cityDir)
-    .filter(f => f.endsWith('.json'))
-    .map(f => f.replace('.json', ''));
+  const idx = loadCityIndex(state.toUpperCase());
+  return idx ? Object.keys(idx) : [];
 }
 
 /** Generate URL slug from city name (e.g., "Houston" → "houston") */
@@ -160,33 +150,21 @@ export function cityNameToSlug(name: string): string {
     .replace(/^-+|-+$/g, '');
 }
 
-/** Get all cities with their slugs for static params generation */
+/** Get all cities with their slugs (iterates the bundled fips_places + per-state indexes) */
 export function getAllCitySlugs(): Array<{ state: string; slug: string; fips: string }> {
   const result: Array<{ state: string; slug: string; fips: string }> = [];
-
-  // Load place names lookup
   const names = readJson<Record<string, string>>(dataPath('meta', 'fips_places.json')) || {};
+  const indexDir = dataPath('cities-index');
+  if (!existsSync(indexDir)) return result;
 
-  // Get all state directories
-  const citiesBaseDir = dataPath('cities');
-  if (!existsSync(citiesBaseDir)) {
-    return result;
-  }
+  const stateFiles = readdirSync(indexDir).filter((f) => f.endsWith('.json'));
+  for (const file of stateFiles) {
+    const state = file.replace('.json', '');
+    const idx = loadCityIndex(state);
+    if (!idx) continue;
 
-  const stateDirs = readdirSync(citiesBaseDir).filter(
-    (d) => d.length === 2 && d === d.toUpperCase()
-  );
-
-  for (const state of stateDirs) {
-    const stateDir = join(citiesBaseDir, state);
-    const fipsFiles = readdirSync(stateDir).filter((f) => f.endsWith('.json'));
-
-    for (const file of fipsFiles) {
-      const fips = file.replace('.json', '');
-      const key = `${state}-${fips}`;
-      const cityName = names[key];
-
-      // Only include cities with valid names (not placeholders)
+    for (const fips of Object.keys(idx)) {
+      const cityName = names[`${state}-${fips}`];
       if (cityName && isValidCityName(cityName)) {
         result.push({
           state: state.toLowerCase(),
@@ -196,7 +174,6 @@ export function getAllCitySlugs(): Array<{ state: string; slug: string; fips: st
       }
     }
   }
-
   return result;
 }
 
