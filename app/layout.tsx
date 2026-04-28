@@ -92,6 +92,14 @@ function SiteWideJsonLd() {
         name: 'BridgeReport.org',
         description: 'Explore bridge condition data for every highway bridge in America.',
         publisher: { '@id': `${CANONICAL_DOMAIN}/#organization` },
+        potentialAction: {
+          '@type': 'SearchAction',
+          target: {
+            '@type': 'EntryPoint',
+            urlTemplate: `${CANONICAL_DOMAIN}/bridges-near-me?q={search_term_string}`,
+          },
+          'query-input': 'required name=search_term_string',
+        },
       },
     ],
   };

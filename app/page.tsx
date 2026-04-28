@@ -46,50 +46,33 @@ export const metadata: Metadata = {
   },
 };
 
-// JSON-LD structured data — Organization + WebSite are emitted by the root layout
-// (via SiteWideJsonLd with stable @id), so the homepage only adds the Dataset entity
-// and a SearchAction tied to the site-wide WebSite via @id reference.
+// JSON-LD structured data — Organization + WebSite (with SearchAction) are emitted
+// by the root layout via SiteWideJsonLd. The homepage only adds the Dataset entity.
 function JsonLd() {
   const structuredData = {
     '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'Dataset',
-        '@id': 'https://www.bridgereport.org/#dataset',
-        name: 'US National Bridge Inventory Data',
-        description: 'Complete inventory of 623,218 highway bridges in the United States with condition ratings, inspection data, and infrastructure metrics.',
-        url: 'https://www.bridgereport.org',
-        license: 'https://www.usa.gov/government-works',
-        creator: {
-          '@type': 'GovernmentOrganization',
-          name: 'Federal Highway Administration',
-          url: 'https://www.fhwa.dot.gov/',
-        },
-        temporalCoverage: '2024',
-        spatialCoverage: {
-          '@type': 'Place',
-          name: 'United States of America',
-        },
-        variableMeasured: [
-          'Bridge condition ratings',
-          'Structural deficiency status',
-          'Average daily traffic',
-          'Year built',
-          'Construction materials',
-        ],
-      },
-      {
-        '@type': 'WebSite',
-        '@id': 'https://www.bridgereport.org/#website',
-        potentialAction: {
-          '@type': 'SearchAction',
-          target: {
-            '@type': 'EntryPoint',
-            urlTemplate: 'https://www.bridgereport.org/bridges-near-me?q={search_term_string}',
-          },
-          'query-input': 'required name=search_term_string',
-        },
-      },
+    '@type': 'Dataset',
+    '@id': 'https://www.bridgereport.org/#dataset',
+    name: 'US National Bridge Inventory Data',
+    description: 'Complete inventory of 623,218 highway bridges in the United States with condition ratings, inspection data, and infrastructure metrics.',
+    url: 'https://www.bridgereport.org',
+    license: 'https://www.usa.gov/government-works',
+    creator: {
+      '@type': 'GovernmentOrganization',
+      name: 'Federal Highway Administration',
+      url: 'https://www.fhwa.dot.gov/',
+    },
+    temporalCoverage: '2024',
+    spatialCoverage: {
+      '@type': 'Place',
+      name: 'United States of America',
+    },
+    variableMeasured: [
+      'Bridge condition ratings',
+      'Structural deficiency status',
+      'Average daily traffic',
+      'Year built',
+      'Construction materials',
     ],
   };
 
