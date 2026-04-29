@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Data Methodology',
+  title: 'Data Methodology — How BridgeReport Sources NBI Inspection Data',
   description: 'Detailed explanation of BridgeReport.org data sources, processing methodology, condition ratings, and how we present bridge infrastructure information.',
   alternates: {
     canonical: 'https://www.bridgereport.org/methodology',

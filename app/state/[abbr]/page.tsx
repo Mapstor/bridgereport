@@ -72,13 +72,38 @@ interface BreadcrumbItem {
   href?: string;
 }
 
-// Combined JSON-LD with @graph for Dataset + FAQ + BreadcrumbList
+// Combined JSON-LD with @graph for Article + Dataset + FAQ + BreadcrumbList
 function StatePageJsonLd({ state, breadcrumbItems }: { state: StateSummary; breadcrumbItems: BreadcrumbItem[] }) {
   const avgAge = new Date().getFullYear() - state.avgYearBuilt;
+  const stateUrl = `https://www.bridgereport.org/state/${state.state.toLowerCase()}`;
 
   const graphData = {
     '@context': 'https://schema.org',
     '@graph': [
+      // Article schema — the state page carries 4 paragraphs of analytical prose
+      // about the state's bridge infrastructure. Article entity makes that prose
+      // citable as content (journalists, researchers, ranking aggregators).
+      {
+        '@type': 'Article',
+        '@id': `${stateUrl}#article`,
+        headline: `${state.stateName} Bridge Infrastructure Report`,
+        description: `Analysis of ${formatNumber(state.total)} highway bridges in ${state.stateName}: ${formatPct(state.poorPct)} in poor condition, average age ${avgAge} years, ${formatNumber(state.totalDailyCrossings)} daily crossings.`,
+        url: stateUrl,
+        image: `${stateUrl}/opengraph-image`,
+        about: { '@type': 'Place', name: state.stateName },
+        author: { '@id': 'https://www.bridgereport.org/#organization' },
+        publisher: { '@id': 'https://www.bridgereport.org/#organization' },
+        isPartOf: { '@id': 'https://www.bridgereport.org/#website' },
+        mainEntityOfPage: { '@type': 'WebPage', '@id': stateUrl },
+        dateModified: new Date().toISOString().split('T')[0],
+        keywords: [
+          `${state.stateName} bridges`,
+          `${state.stateName} infrastructure`,
+          `${state.stateName} bridge inspection`,
+          'National Bridge Inventory',
+          'structurally deficient',
+        ],
+      },
       // Dataset schema (Google Dataset rich-result eligible)
       {
         '@type': 'Dataset',

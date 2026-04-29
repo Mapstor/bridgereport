@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Contact Us',
+  title: 'Contact BridgeReport — Send Feedback or Data Corrections',
   description: 'Get in touch with the BridgeReport.org team. Contact us for data inquiries, feedback, media requests, or partnership opportunities.',
   alternates: {
     canonical: 'https://www.bridgereport.org/contact',

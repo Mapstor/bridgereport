@@ -130,6 +130,7 @@ function BridgePageJsonLd({ bridge, countyName, breadcrumbItems, state, id }: { 
         name: bridgeName,
         description: `${bridgeName} in ${countyName && countyName !== bridge.stateName ? `${countyName}, ` : ''}${bridge.stateName}. ${bridge.materialName || ''} ${bridge.designTypeName || ''} structure${bridge.yearBuilt ? ` built in ${bridge.yearBuilt}` : ''}. Current condition: ${bridge.conditionCategory || 'unknown'}.${bridge.adt ? ` Carries ${formatNumber(bridge.adt)} vehicles daily.` : ''}`,
         url: `https://www.bridgereport.org/bridge/${state.toLowerCase()}/${id}`,
+        image: `https://www.bridgereport.org/bridge/${state.toLowerCase()}/${id}/opengraph-image`,
         address: {
           '@type': 'PostalAddress',
           addressLocality: bridge.location || countyName || undefined,
@@ -277,6 +278,7 @@ function MinimalBridgePageJsonLd({
         name: bridgeName,
         description: `${bridgeName} in ${countyName && countyName !== bridge.stateName ? `${countyName}, ` : ''}${bridge.stateName}.${bridge.yearBuilt ? ` Built in ${bridge.yearBuilt}.` : ''} Current condition: ${bridge.conditionCategory || 'unknown'}.`,
         url,
+        image: `${url}/opengraph-image`,
         address: {
           '@type': 'PostalAddress',
           addressLocality: bridge.location || countyName || undefined,
