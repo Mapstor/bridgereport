@@ -26,8 +26,22 @@ const CountyBridgeTable = dynamicImport(() => import('@/components/CountyBridgeT
 });
 
 // ISR — city data refreshes with NBI release. 24h revalidate.
-// We don't pre-generate all 8K city paths at build time; first hit triggers SSR + caches.
 export const revalidate = 86400;
+
+// Pre-render the top 500 cities by bridge count at build time. The remaining ~7,900
+// long-tail cities stay ISR-on-demand (first hit triggers SSR + caches at the edge).
+// This keeps build time bounded while ensuring the highest-traffic cities load instantly.
+export async function generateStaticParams() {
+  const { getAllCitySlugs, getCity } = await import('@/lib/data');
+  const slugs = getAllCitySlugs();
+  const enriched = slugs.map((s) => ({
+    state: s.state,
+    slug: s.slug,
+    total: getCity(s.state.toUpperCase(), s.fips)?.total ?? 0,
+  }));
+  enriched.sort((a, b) => b.total - a.total);
+  return enriched.slice(0, 500).map(({ state, slug }) => ({ state, slug }));
+}
 
 // Chart loading skeleton
 function ChartSkeleton({ height }: { height: number }) {
@@ -109,8 +123,19 @@ export async function generateMetadata({
   };
 }
 
-// JSON-LD structured data for city
+// JSON-LD structured data for city.
+// Includes geo (centroid of city's bridge locations) and containedInPlace (parent state)
+// for richer geographic queryability.
 function PlaceJsonLd({ city, cityName }: { city: CitySummary; cityName: string }) {
+  const bridgesWithCoords = city.bridges.filter((b) => b.lat != null && b.lon != null);
+  const geo = bridgesWithCoords.length > 0
+    ? {
+        '@type': 'GeoCoordinates',
+        latitude: bridgesWithCoords.reduce((s, b) => s + (b.lat as number), 0) / bridgesWithCoords.length,
+        longitude: bridgesWithCoords.reduce((s, b) => s + (b.lon as number), 0) / bridgesWithCoords.length,
+      }
+    : undefined;
+
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'Place',
@@ -120,6 +145,12 @@ function PlaceJsonLd({ city, cityName }: { city: CitySummary; cityName: string }
       addressLocality: cityName,
       addressRegion: city.stateName,
       addressCountry: 'US',
+    },
+    ...(geo ? { geo } : {}),
+    containedInPlace: {
+      '@type': 'State',
+      name: city.stateName,
+      url: `https://www.bridgereport.org/state/${city.state.toLowerCase()}`,
     },
     description: `${cityName}, ${city.stateName} has ${formatNumber(city.total)} highway bridges. ${formatNumber(city.poor)} bridges (${formatPct(city.poorPct)}) are in poor condition.`,
   };

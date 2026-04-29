@@ -79,15 +79,38 @@ function StatePageJsonLd({ state, breadcrumbItems }: { state: StateSummary; brea
   const graphData = {
     '@context': 'https://schema.org',
     '@graph': [
-      // Dataset schema
+      // Dataset schema (Google Dataset rich-result eligible)
       {
         '@type': 'Dataset',
         name: `${state.stateName} Highway Bridge Inventory`,
-        description: `Complete inventory of ${formatNumber(state.total)} highway bridges in ${state.stateName}.`,
+        description: `Complete inventory of ${formatNumber(state.total)} highway bridges in ${state.stateName}, with condition ratings, year built, traffic, and structural deficiency status.`,
         url: `https://www.bridgereport.org/state/${state.state.toLowerCase()}`,
         license: 'https://www.usa.gov/government-works',
-        creator: { '@type': 'Organization', name: 'Federal Highway Administration', url: 'https://www.fhwa.dot.gov/' },
+        creator: {
+          '@type': 'GovernmentOrganization',
+          name: 'Federal Highway Administration',
+          url: 'https://www.fhwa.dot.gov/',
+        },
         spatialCoverage: { '@type': 'Place', name: state.stateName },
+        temporalCoverage: '2024',
+        variableMeasured: [
+          'Bridge condition ratings',
+          'Structural deficiency status',
+          'Average daily traffic',
+          'Year built',
+          'Construction materials',
+          'Span length',
+        ],
+        distribution: {
+          '@type': 'DataDownload',
+          encodingFormat: 'text/html',
+          contentUrl: `https://www.bridgereport.org/state/${state.state.toLowerCase()}`,
+        },
+        isBasedOn: {
+          '@type': 'Dataset',
+          name: 'National Bridge Inventory',
+          url: 'https://www.fhwa.dot.gov/bridge/nbi.cfm',
+        },
       },
       // FAQ schema
       {
