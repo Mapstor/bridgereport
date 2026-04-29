@@ -24,9 +24,26 @@ const nextConfig: NextConfig = {
     ];
   },
 
-  // Caching headers for optimal performance
+  // Caching + security headers
   async headers() {
     return [
+      {
+        // Security baseline applied site-wide. X-Frame-Options is scoped further
+        // down to allow /embed/* to render in third-party iframes.
+        source: '/:path*',
+        headers: [
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'geolocation=(self), microphone=(), camera=()' },
+        ],
+      },
+      {
+        // Block iframing for everything except /embed/*
+        source: '/((?!embed).*)',
+        headers: [
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+        ],
+      },
       {
         // Static assets in _next/static (immutable)
         source: '/_next/static/:path*',
