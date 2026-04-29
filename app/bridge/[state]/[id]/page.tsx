@@ -34,34 +34,37 @@ export async function generateMetadata({
     };
   }
 
-  const title = `${bridge.facilityCarried || 'Bridge'} over ${bridge.featuresIntersected || 'Unknown'}, ${bridge.stateName}`;
-  const description = `${bridge.facilityCarried || 'Bridge'} in ${bridge.location || bridge.stateName}. Built ${bridge.yearBuilt || 'unknown'}. Condition: ${bridge.conditionCategory || 'unknown'}. Average daily traffic: ${bridge.adt ? formatNumber(bridge.adt) : 'N/A'}.`;
+  // Tight title pattern (~50–60 chars typical) — drops "| BridgeReport.org" template
+  // suffix because canonical/OG already identify the source. Google truncates titles
+  // around 60 chars; the prior 100+ char form was getting cut mid-state.
+  const facility = bridge.facilityCarried || 'Bridge';
+  const features = bridge.featuresIntersected;
+  const shortTitle = features
+    ? `${facility} over ${features} | ${bridge.stateName}`
+    : `${facility} | ${bridge.stateName}`;
+  const description = `${facility} in ${bridge.location || bridge.stateName}. Built ${bridge.yearBuilt || 'unknown'}. Condition: ${bridge.conditionCategory || 'unknown'}. Average daily traffic: ${bridge.adt ? formatNumber(bridge.adt) : 'N/A'}.`;
 
+  // Note: no `openGraph.images` or `twitter.images` here. Next.js auto-detects the
+  // file-convention `opengraph-image.tsx` co-located in this route segment, which
+  // generates a per-bridge dynamic OG image. Metadata fields would override the file
+  // convention, so we omit them and let the dynamic image win for both OG and Twitter
+  // (Twitter falls back to og:image when twitter:image is unset).
   return {
-    title: `${title} — Bridge Condition`,
+    title: { absolute: shortTitle },
     description,
     alternates: {
       canonical: `https://www.bridgereport.org/bridge/${state.toLowerCase()}/${id}`,
     },
     openGraph: {
-      title,
+      title: shortTitle,
       description,
       type: 'article',
       url: `https://www.bridgereport.org/bridge/${state.toLowerCase()}/${id}`,
-      images: [
-        {
-          url: '/og-image.png',
-          width: 1200,
-          height: 630,
-          alt: `${bridge.facilityCarried || 'Bridge'} - BridgeReport.org`,
-        },
-      ],
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: shortTitle,
       description,
-      images: ['/og-image.png'],
     },
   };
 }
@@ -216,13 +219,113 @@ function DetailRow({ label, value, mono = false }: { label: string; value: React
   );
 }
 
+// JSON-LD for MinimalBridgePage. RankingBridge has fewer fields than Bridge
+// (no truckPct/conditions per component, etc.) but still enough for Bridge entity,
+// a 2-question FAQ, and the BreadcrumbList — better than zero schema.
+function MinimalBridgePageJsonLd({
+  bridge,
+  countyName,
+  breadcrumbItems,
+  state,
+  id,
+}: {
+  bridge: RankingBridge;
+  countyName: string | null;
+  breadcrumbItems: BreadcrumbItem[];
+  state: string;
+  id: string;
+}) {
+  const facility = bridge.facilityCarried || 'Bridge';
+  const features = bridge.featuresIntersected || 'crossing';
+  const bridgeName = `${facility} over ${features}`;
+  const url = `https://www.bridgereport.org/bridge/${state.toLowerCase()}/${id}`;
+  const age = bridge.yearBuilt ? new Date().getFullYear() - bridge.yearBuilt : null;
+
+  const faq = [
+    {
+      '@type': 'Question',
+      name: `What is the condition of ${facility}?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `${facility} is currently rated in ${bridge.conditionCategory || 'unknown'} condition${bridge.lowestRating !== null ? ` with a lowest component rating of ${bridge.lowestRating} on the 0-9 federal scale` : ''}.`,
+      },
+    },
+    ...(age ? [{
+      '@type': 'Question',
+      name: `How old is ${facility}?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `${facility} was built in ${bridge.yearBuilt}, making it ${age} years old.`,
+      },
+    }] : []),
+    {
+      '@type': 'Question',
+      name: `Where is ${facility} located?`,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: `${facility} is located in ${bridge.location ? `${bridge.location}, ` : ''}${countyName ? `${countyName}, ` : ''}${bridge.stateName}.`,
+      },
+    },
+  ];
+
+  const graph = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Bridge',
+        '@id': url,
+        name: bridgeName,
+        description: `${bridgeName} in ${countyName && countyName !== bridge.stateName ? `${countyName}, ` : ''}${bridge.stateName}.${bridge.yearBuilt ? ` Built in ${bridge.yearBuilt}.` : ''} Current condition: ${bridge.conditionCategory || 'unknown'}.`,
+        url,
+        address: {
+          '@type': 'PostalAddress',
+          addressLocality: bridge.location || countyName || undefined,
+          addressRegion: bridge.stateName,
+          addressCountry: 'US',
+        },
+        ...(bridge.lat != null && bridge.lon != null
+          ? { geo: { '@type': 'GeoCoordinates', latitude: bridge.lat, longitude: bridge.lon } }
+          : {}),
+        ...(bridge.yearBuilt ? { foundingDate: String(bridge.yearBuilt) } : {}),
+        ...(bridge.lowestRating !== null || bridge.lengthFt
+          ? {
+              additionalProperty: [
+                ...(bridge.conditionCategory ? [{ '@type': 'PropertyValue', name: 'Condition Rating', value: bridge.conditionCategory }] : []),
+                ...(bridge.lowestRating !== null ? [{ '@type': 'PropertyValue', name: 'NBI Rating', value: bridge.lowestRating, minValue: 0, maxValue: 9 }] : []),
+                ...(bridge.lengthFt ? [{ '@type': 'PropertyValue', name: 'Total Length', value: Math.round(bridge.lengthFt), unitCode: 'FOT', unitText: 'feet' }] : []),
+              ],
+            }
+          : {}),
+        isAccessibleForFree: true,
+        publicAccess: true,
+      },
+      { '@type': 'FAQPage', mainEntity: faq },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: breadcrumbItems
+          .filter((item) => item.href)
+          .map((item, index) => ({
+            '@type': 'ListItem',
+            position: index + 1,
+            name: item.label,
+            item: `https://www.bridgereport.org${item.href}`,
+          })),
+      },
+    ],
+  };
+
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(graph) }} />;
+}
+
 function MinimalBridgePage({
   bridge,
   state,
+  id,
   countyName,
 }: {
   bridge: RankingBridge;
   state: string;
+  id: string;
   countyName: string | null;
 }) {
   const breadcrumbItems = [
@@ -236,6 +339,7 @@ function MinimalBridgePage({
 
   return (
     <>
+      <MinimalBridgePageJsonLd bridge={bridge} countyName={countyName} breadcrumbItems={breadcrumbItems} state={state} id={id} />
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -446,7 +550,7 @@ export default async function BridgePage({
     const minimalBridge = getMinimalBridge(state.toUpperCase(), id);
     if (minimalBridge) {
       const countyName = getCountyName(state, minimalBridge.countyFips);
-      return <MinimalBridgePage bridge={minimalBridge} state={state} countyName={countyName} />;
+      return <MinimalBridgePage bridge={minimalBridge} state={state} id={id} countyName={countyName} />;
     }
     notFound();
   }
