@@ -13,6 +13,9 @@ interface CountyBridgeTableProps {
   bridges: BridgeSlim[];
   state: string;
   defaultSort?: SortField;
+  /** Cap initial server-rendered rows to keep HTML payload manageable on large cities
+   * (Houston has 2,427 bridges → 3MB HTML uncapped). Users can expand client-side. */
+  initialDisplayCount?: number;
 }
 
 // Convert condition to numeric value for sorting (poor = 1, fair = 2, good = 3)
@@ -27,9 +30,11 @@ export default function CountyBridgeTable({
   bridges,
   state,
   defaultSort = 'condition',
+  initialDisplayCount = 100,
 }: CountyBridgeTableProps) {
   const [sortField, setSortField] = useState<SortField>(defaultSort);
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [showAll, setShowAll] = useState(false);
 
   const sortedBridges = useMemo(() => {
     return [...bridges].sort((a, b) => {
@@ -98,6 +103,9 @@ export default function CountyBridgeTable({
     );
   }
 
+  const visibleBridges = showAll ? sortedBridges : sortedBridges.slice(0, initialDisplayCount);
+  const hiddenCount = sortedBridges.length - visibleBridges.length;
+
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left">
@@ -114,7 +122,7 @@ export default function CountyBridgeTable({
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
-          {sortedBridges.map((bridge) => (
+          {visibleBridges.map((bridge) => (
             <tr key={bridge.id} className="hover:bg-slate-50 transition-colors">
               <td className="px-4 py-3">
                 <Link
@@ -160,9 +168,24 @@ export default function CountyBridgeTable({
           ))}
         </tbody>
       </table>
-      <div className="px-4 py-2 text-xs text-slate-400 border-t border-slate-100">
-        Showing {bridges.length} bridges. Click column headers to sort.
-      </div>
+      {hiddenCount > 0 ? (
+        <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between">
+          <span className="text-xs text-slate-500">
+            Showing {visibleBridges.length} of {formatNumber(bridges.length)} bridges. Click column headers to sort.
+          </span>
+          <button
+            type="button"
+            onClick={() => setShowAll(true)}
+            className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+          >
+            Show all {formatNumber(bridges.length)} →
+          </button>
+        </div>
+      ) : (
+        <div className="px-4 py-2 text-xs text-slate-400 border-t border-slate-100">
+          Showing {formatNumber(bridges.length)} bridges. Click column headers to sort.
+        </div>
+      )}
     </div>
   );
 }
