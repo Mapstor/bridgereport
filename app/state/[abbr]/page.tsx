@@ -44,25 +44,18 @@ export async function generateMetadata({
     alternates: {
       canonical: `https://www.bridgereport.org/state/${abbr.toLowerCase()}`,
     },
+    // No openGraph.images / twitter.images — file convention opengraph-image.tsx
+    // generates a per-state dynamic image which would otherwise be overridden.
     openGraph: {
       title: `${state.stateName} Bridges — Condition Report`,
       description,
       type: 'website',
       url: `https://www.bridgereport.org/state/${abbr.toLowerCase()}`,
-      images: [
-        {
-          url: '/og-image.png',
-          width: 1200,
-          height: 630,
-          alt: `${state.stateName} Bridge Conditions - BridgeReport.org`,
-        },
-      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: `${state.stateName} Bridges — Condition Report`,
       description,
-      images: ['/og-image.png'],
     },
   };
 }

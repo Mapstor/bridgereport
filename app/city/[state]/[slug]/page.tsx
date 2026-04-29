@@ -7,6 +7,7 @@ import {
   getCityFipsBySlug,
   getNational,
   getState,
+  cityNameToSlug,
   formatNumber,
   formatPct,
 } from '@/lib/data';
@@ -100,25 +101,18 @@ export async function generateMetadata({
     alternates: {
       canonical: `https://www.bridgereport.org/city/${state.toLowerCase()}/${slug}`,
     },
+    // No openGraph.images / twitter.images — file convention opengraph-image.tsx
+    // generates a per-city dynamic image which would otherwise be overridden.
     openGraph: {
       title: `Bridges in ${cityName}, ${city.stateName}`,
       description,
       type: 'website',
       url: `https://www.bridgereport.org/city/${state.toLowerCase()}/${slug}`,
-      images: [
-        {
-          url: '/og-image.png',
-          width: 1200,
-          height: 630,
-          alt: `Bridges in ${cityName}, ${city.stateName} - BridgeReport.org`,
-        },
-      ],
     },
     twitter: {
       card: 'summary_large_image',
       title: `Bridges in ${cityName}, ${city.stateName}`,
       description,
-      images: ['/og-image.png'],
     },
   };
 }
@@ -136,10 +130,13 @@ function PlaceJsonLd({ city, cityName }: { city: CitySummary; cityName: string }
       }
     : undefined;
 
+  const cityUrl = `https://www.bridgereport.org/city/${city.state.toLowerCase()}/${cityNameToSlug(cityName)}`;
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'Place',
     name: cityName,
+    url: cityUrl,
+    image: `${cityUrl}/opengraph-image`,
     address: {
       '@type': 'PostalAddress',
       addressLocality: cityName,
