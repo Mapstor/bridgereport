@@ -396,7 +396,16 @@ export default async function CityPage({
             Complete list of {formatNumber(city.total)} highway bridges. Click column headers to
             sort.
           </p>
-          <CountyBridgeTable bridges={city.bridges} state={state} />
+          {/* SSR/RSC payload only carries the first 100 (sorted by condition default).
+              For cities with more, the rest is fetched on-demand via /api/cities/.../bridges
+              when the user clicks "Show all". Houston was 2,427 rows × ~250B per JSON entry
+              ≈ 600KB ALWAYS shipped pre-fix; now only 100 × ~250B = 25KB until requested. */}
+          <CountyBridgeTable
+            bridges={city.bridges.slice(0, 100)}
+            state={state}
+            slug={slug}
+            totalCount={city.bridges.length}
+          />
         </section>
 
         {/* Internal Links */}

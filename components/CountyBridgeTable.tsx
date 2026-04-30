@@ -16,6 +16,12 @@ interface CountyBridgeTableProps {
   /** Cap initial server-rendered rows to keep HTML payload manageable on large cities
    * (Houston has 2,427 bridges → 3MB HTML uncapped). Users can expand client-side. */
   initialDisplayCount?: number;
+  /** When provided alongside `totalCount > bridges.length`, the "Show all" button
+   * fetches /api/cities/{state}/{slug}/bridges instead of relying on client-side
+   * data already shipped. This means the initial RSC payload only ships the visible
+   * 100 bridges, dramatically reducing transfer size for big cities. */
+  slug?: string;
+  totalCount?: number;
 }
 
 // Convert condition to numeric value for sorting (poor = 1, fair = 2, good = 3)
@@ -27,14 +33,44 @@ function conditionToNumber(condition: ConditionCategory | null): number {
 }
 
 export default function CountyBridgeTable({
-  bridges,
+  bridges: initialBridges,
   state,
   defaultSort = 'condition',
   initialDisplayCount = 100,
+  slug,
+  totalCount,
 }: CountyBridgeTableProps) {
   const [sortField, setSortField] = useState<SortField>(defaultSort);
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
-  const [showAll, setShowAll] = useState(false);
+  const [allBridges, setAllBridges] = useState<BridgeSlim[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [fetchError, setFetchError] = useState(false);
+
+  // Effective bridges in scope for sort/render. After lazy-fetch, replaces initial.
+  const bridges = allBridges ?? initialBridges;
+  // True total available — may be > initialBridges.length when caller did the slice.
+  const knownTotal = totalCount ?? bridges.length;
+
+  async function handleShowAll() {
+    if (loading) return;
+    // If we have everything client-side already, just expand display.
+    if (!slug || initialBridges.length >= knownTotal) {
+      setAllBridges(initialBridges);
+      return;
+    }
+    setLoading(true);
+    setFetchError(false);
+    try {
+      const res = await fetch(`/api/cities/${state.toLowerCase()}/${slug}/bridges`);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = (await res.json()) as { bridges: BridgeSlim[] };
+      setAllBridges(data.bridges);
+    } catch {
+      setFetchError(true);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const sortedBridges = useMemo(() => {
     return [...bridges].sort((a, b) => {
@@ -103,8 +139,11 @@ export default function CountyBridgeTable({
     );
   }
 
-  const visibleBridges = showAll ? sortedBridges : sortedBridges.slice(0, initialDisplayCount);
-  const hiddenCount = sortedBridges.length - visibleBridges.length;
+  // If lazy-fetch loaded everything, show the full sorted set. Otherwise show the
+  // initial slice the caller passed (already capped to ~100 server-side).
+  const fullyLoaded = allBridges !== null;
+  const visibleBridges = fullyLoaded ? sortedBridges : sortedBridges.slice(0, initialDisplayCount);
+  const hiddenCount = knownTotal - visibleBridges.length;
 
   return (
     <div className="overflow-x-auto">
@@ -169,21 +208,25 @@ export default function CountyBridgeTable({
         </tbody>
       </table>
       {hiddenCount > 0 ? (
-        <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between">
+        <div className="px-4 py-3 border-t border-slate-100 flex items-center justify-between gap-3 flex-wrap">
           <span className="text-xs text-slate-500">
-            Showing {visibleBridges.length} of {formatNumber(bridges.length)} bridges. Click column headers to sort.
+            Showing {formatNumber(visibleBridges.length)} of {formatNumber(knownTotal)} bridges
+            {fetchError && (
+              <span className="ml-2 text-red-600">· Failed to load — retry?</span>
+            )}
           </span>
           <button
             type="button"
-            onClick={() => setShowAll(true)}
-            className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline"
+            onClick={handleShowAll}
+            disabled={loading}
+            className="text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline disabled:text-slate-400 disabled:cursor-wait"
           >
-            Show all {formatNumber(bridges.length)} →
+            {loading ? 'Loading…' : `Show all ${formatNumber(knownTotal)} →`}
           </button>
         </div>
       ) : (
         <div className="px-4 py-2 text-xs text-slate-400 border-t border-slate-100">
-          Showing {formatNumber(bridges.length)} bridges. Click column headers to sort.
+          Showing {formatNumber(knownTotal)} bridges. Click column headers to sort.
         </div>
       )}
     </div>

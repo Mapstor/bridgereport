@@ -115,6 +115,9 @@ const nextConfig: NextConfig = {
     // scripts/build-cities-index.js as a prebuild step.
     '/city/[state]/[slug]': ['./data/cities-index/**/*.json', './data/meta/**/*.json'],
     '/sitemap-cities.xml': ['./data/cities-index/**/*.json', './data/meta/**/*.json'],
+    // Lazy-load route serves the full bridges array for a city when user clicks
+    // "Show all" — same data dependency as the city page itself.
+    '/api/cities/[state]/[slug]/bridges': ['./data/cities-index/**/*.json', './data/meta/**/*.json'],
   },
 
   // Enable experimental features for better performance
