@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy — How BridgeReport Handles Your Data',
+  title: { absolute: 'Privacy Policy — How BridgeReport Handles Your Data' },
   description: 'Privacy Policy for BridgeReport.org. Learn how we collect, use, and protect your personal information when you visit our website.',
   alternates: {
     canonical: 'https://www.bridgereport.org/privacy',

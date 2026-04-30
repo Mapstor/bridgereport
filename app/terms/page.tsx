@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
-  title: 'Terms of Use — BridgeReport.org Bridge Data Platform',
+  title: { absolute: 'Terms of Use — BridgeReport.org Bridge Data Platform' },
   description: 'Terms of Use for BridgeReport.org. Read the terms and conditions governing your use of our bridge infrastructure data website.',
   alternates: {
     canonical: 'https://www.bridgereport.org/terms',

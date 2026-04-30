@@ -7,7 +7,6 @@ import {
   getCityFipsBySlug,
   getNational,
   getState,
-  cityNameToSlug,
   formatNumber,
   formatPct,
 } from '@/lib/data';
@@ -119,8 +118,10 @@ export async function generateMetadata({
 
 // JSON-LD structured data for city.
 // Includes geo (centroid of city's bridge locations) and containedInPlace (parent state)
-// for richer geographic queryability.
-function PlaceJsonLd({ city, cityName }: { city: CitySummary; cityName: string }) {
+// for richer geographic queryability. Receives slug from URL params (NOT rederived
+// from cityName — getCityName strips " city"/" CDP" suffixes for display, which would
+// produce a wrong slug).
+function PlaceJsonLd({ city, cityName, slug }: { city: CitySummary; cityName: string; slug: string }) {
   const bridgesWithCoords = city.bridges.filter((b) => b.lat != null && b.lon != null);
   const geo = bridgesWithCoords.length > 0
     ? {
@@ -130,7 +131,7 @@ function PlaceJsonLd({ city, cityName }: { city: CitySummary; cityName: string }
       }
     : undefined;
 
-  const cityUrl = `https://www.bridgereport.org/city/${city.state.toLowerCase()}/${cityNameToSlug(cityName)}`;
+  const cityUrl = `https://www.bridgereport.org/city/${city.state.toLowerCase()}/${slug}`;
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'Place',
@@ -222,7 +223,7 @@ export default async function CityPage({
   return (
     <>
       <BreadcrumbJsonLd items={breadcrumbItems} />
-      <PlaceJsonLd city={city} cityName={cityName} />
+      <PlaceJsonLd city={city} cityName={cityName} slug={slug} />
 
       {/* Hero Section */}
       <section className="bg-slate-900 text-white">
