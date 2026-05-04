@@ -117,19 +117,36 @@ export async function generateMetadata({
 }
 
 // JSON-LD structured data for city.
-// Includes geo (centroid of city's bridge locations) and containedInPlace (parent state)
-// for richer geographic queryability. Receives slug from URL params (NOT rederived
-// from cityName — getCityName strips " city"/" CDP" suffixes for display, which would
-// produce a wrong slug).
+// Includes geo (centroid of city's bridge locations only when tightly clustered)
+// and containedInPlace (parent state) for richer geographic queryability.
+// Receives slug from URL params (NOT rederived from cityName — getCityName strips
+// " city"/" CDP" suffixes for display, which would produce a wrong slug).
 function PlaceJsonLd({ city, cityName, slug }: { city: CitySummary; cityName: string; slug: string }) {
   const bridgesWithCoords = city.bridges.filter((b) => b.lat != null && b.lon != null);
-  const geo = bridgesWithCoords.length > 0
-    ? {
+  // Only emit geo when bridges are tightly spatially clustered (~30km box).
+  // The source data associates bridges with cities by a coarser geography than the
+  // city boundary (sometimes county-level), so for big cities like LA/Houston the
+  // computed centroid lands hundreds of km away. Skip rather than mislead Google.
+  let geo: { '@type': string; latitude: number; longitude: number } | undefined;
+  if (bridgesWithCoords.length >= 2) {
+    const lats = bridgesWithCoords.map((b) => b.lat as number);
+    const lons = bridgesWithCoords.map((b) => b.lon as number);
+    const latSpan = Math.max(...lats) - Math.min(...lats);
+    const lonSpan = Math.max(...lons) - Math.min(...lons);
+    if (latSpan < 0.3 && lonSpan < 0.3) {
+      geo = {
         '@type': 'GeoCoordinates',
-        latitude: bridgesWithCoords.reduce((s, b) => s + (b.lat as number), 0) / bridgesWithCoords.length,
-        longitude: bridgesWithCoords.reduce((s, b) => s + (b.lon as number), 0) / bridgesWithCoords.length,
-      }
-    : undefined;
+        latitude: lats.reduce((s, v) => s + v, 0) / lats.length,
+        longitude: lons.reduce((s, v) => s + v, 0) / lons.length,
+      };
+    }
+  } else if (bridgesWithCoords.length === 1) {
+    geo = {
+      '@type': 'GeoCoordinates',
+      latitude: bridgesWithCoords[0].lat as number,
+      longitude: bridgesWithCoords[0].lon as number,
+    };
+  }
 
   const cityUrl = `https://www.bridgereport.org/city/${city.state.toLowerCase()}/${slug}`;
   const structuredData = {
